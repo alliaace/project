@@ -39,7 +39,11 @@ const DashBoardGetter = (props) => {
     const [noOfPerson, setNoOfPerson] = useState(0)
     const [textreservation, setTextReservation] = useState("CONFIRM RESERVATION")
     const [totalPrice, setTotalPrice] = useState(0)
+    const [halfPrice, setHalfPrice] = useState(totalPrice / 2)
     const [checkCartData, setCheckCartData] = useState(true)
+    const [easypaisaName, setEasypaisaName] = useState("")
+    const [phoneNumber, setphoneNumber] = useState(0)
+    const [amount, setAmount] = useState(0)
 
 
 
@@ -72,7 +76,7 @@ const DashBoardGetter = (props) => {
     const getRestarent = () => {
         jsonserver.get('/resturant')
             .then((response) => {
-                // console.log(response);
+                // console.log(response.data);
                 setData(response.data)
 
             })
@@ -91,6 +95,35 @@ const DashBoardGetter = (props) => {
 
     return (
         <View style={{ backgroundColor: "#feb334" }}>
+            <Input placeholder="Search..." inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={
+                (search) => {
+
+                    if (search != "") {
+                        jsonserver.get('/resturant/searchByType/' + search)
+                            .then((response) => {
+                                // console.log(response.data);
+                                setData(response.data)
+
+                            })
+                            .then((error) => {
+                                console.log(error);
+                            })
+                    } else {
+                        jsonserver.get('/resturant')
+                            .then((response) => {
+                                // console.log(response.data);
+                                setData(response.data)
+
+                            })
+                            .then((error) => {
+                                console.log(error);
+                            })
+                    }
+
+
+
+                }
+            } />
 
             {/* <TextInput placeholder="Search Anything" style={{ borderWidth: 1, borderColor: "white" }} placeholderTextColor="white" /> */}
             <FlatList
@@ -111,8 +144,10 @@ const DashBoardGetter = (props) => {
                             <Card.Divider />
                             <Card.Image source={{ uri: item.url }} />
                             <Text style={{ marginBottom: 10 }}>
-                                <Text style={{ fontWeight: "bold" }}>Location:</Text> {item.address}
+                                <Text style={{ fontWeight: "bold" }}>Location:</Text> {item.location}
+
                             </Text>
+
                             <Pressable style={{ backgroundColor: "#feb334", alignItems: "center", height: 35, justifyContent: "center", borderRadius: 10 }} onPress={() => toggleOverlay(item._id)}>
                                 <Text>SHOW MENU</Text>
                             </Pressable>
@@ -153,7 +188,7 @@ const DashBoardGetter = (props) => {
                                                                             setTotalPrice(totalPrice + a.price)
                                                                             setCartStatus(cartstatus + 1);
                                                                             let cartDataCopy = [...cartData];
-                                                                            let forjson = { name: a.name, price: a.price }
+                                                                            let forjson = { name: a.name, price: a.price, discription: a.discription }
                                                                             cartDataCopy.push(forjson);
                                                                             setCartData(cartDataCopy);
                                                                             setCartData(cartDataCopy);
@@ -191,7 +226,27 @@ const DashBoardGetter = (props) => {
                                                     return (
                                                         <ScrollView>
                                                             <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
-                                                                <Text style={{ marginLeft: 20, fontSize: 20 }}>{c.name}                 {c.price}.00</Text>
+                                                                <Text style={{ fontSize: 20, backgroundColor: "red", }}>{c.name}                 {c.price}.00
+
+
+                                                                <Pressable onPress={() => {
+
+                                                                        setCheckCartData(false)
+                                                                        setTotalPrice(totalPrice - c.price)
+                                                                        setCartStatus(cartstatus - 1);
+                                                                        let cartDataCopy = [...cartData];
+                                                                        let forjson = { name: c.name, price: c.price, discription: c.discription }
+                                                                        cartDataCopy.pop(forjson);
+                                                                        setCartData(cartDataCopy);
+                                                                        setCartData(cartDataCopy);
+                                                                        console.log(cartData)
+
+                                                                    }}>
+                                                                        <Ionicons name="trash-outline" size={40} style={{ backgroundColor: "pink", marginLeft: 500 }} />
+                                                                    </Pressable>
+
+                                                                </Text>
+
 
                                                             </View>
                                                         </ScrollView>
@@ -266,33 +321,26 @@ const DashBoardGetter = (props) => {
                                                 }}
                                                 onDateChange={(date) => { setDate(date) }}
                                             />
-                                            <TextInput
-                                                multiline={true}
-                                                numberOfLines={4}
-                                                onChangeText={(text) => setTextArea(text)}
+                                            <Input placeholder="Easypaisa username" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(ename) => setEasypaisaName(ename)} />
+                                            <Input placeholder="phone number" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(phonen) => setphoneNumber(phonen)} />
+                                            <Input placeholder='amount' keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(am) => setAmount(am)} />
 
-                                                style={{
-                                                    height: 100,
-                                                    width: 200,
-                                                    borderRadius: 15,
-                                                    paddingLeft: 15,
-                                                    fontSize: 16,
-                                                    marginTop: 15,
-                                                    color: "black",
-                                                    borderWidth: 1
-                                                }}
-                                                placeholder="Any Comments"
-                                            />
                                             {/* <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Select Date" containerStyle={styles.input}  placeholderTextColor="black" onChangeText={(ps) => setPass(ps)}  /> */}
                                             <Pressable style={styles.btn} onPress={() => {
                                                 console.log("request sent");
-                                                console.log(userData._id, tempid, cartData, noOfPerson, date, textArea);
-                                                jsonserver.post('/reservation', {
+                                                console.log(userData._id, tempid, cartData, noOfPerson, date, textArea, easypaisaName, phoneNumber, amount);
+                                                jsonserver.post('/Reservation', {
+
                                                     userId: userData._id,
                                                     resturantId: tempid,
                                                     noOfPersons: noOfPerson,
                                                     dateOfReservation: date,
-                                                    order: cartData
+                                                    order: cartData,
+                                                    userEasyPaisaName: easypaisaName,
+                                                    userEasyPaisaPhoneNo: phoneNumber,
+                                                    paymentBeforeReservation: amount,
+
+
                                                 })
                                                     .then((response) => {
                                                         console.log("this is response", response.data);

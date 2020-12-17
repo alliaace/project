@@ -12,6 +12,11 @@ import RiderLogin from './src/screens/riderLogin'
 import RiderSignUpScreen from './src/screens/riderSigup'
 import DashboardRest from './src/screens/Restaurant/dashboardRest'
 import SplashScreen from 'react-native-splash-screen'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import { Image } from 'react-native';
+import { Dimensions } from 'react-native';
+import { Pressable } from 'react-native';
+import { Input } from 'react-native-elements';
 
 LogBox.ignoreLogs(['Warning: ...']);
 LogBox.ignoreAllLogs();
@@ -72,7 +77,18 @@ function App() {
         />
         <Stack.Screen name="DasboardUser" component={DashboardUser}
           options={{
-            headerShown: false
+            headerLeft: () => (
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                <Image source={require("./src/media/logo-removebg-preview.png")} style={{ width: 50, height: 50, marginLeft: 15 }} />
+                {/* <Input placeholder="Kya Chahiye?"  inputContainerStyle={{borderColor:"white",marginLeft:50}} leftIcon={<Ionicons name="search" size={30} color="white" style={{marginLeft:0}}/>} /> */}
+              </View>
+            ),
+            headerTintColor: "white",
+            title: "Find My Table",
+            headerStyle: {
+              backgroundColor: "#feb334",
+
+            }
           }}
         />
         <Stack.Screen name="DasboardRest" component={DashboardRest}

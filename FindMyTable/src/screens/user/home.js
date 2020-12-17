@@ -19,10 +19,6 @@ BackHandler.addEventListener('hardwareBackPress', function () {
 
 });
 
-
-
-
-
 const FirstRoute = ({ navigation }) => (
 
   < View style={[styles.scene]} >

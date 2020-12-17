@@ -12,9 +12,6 @@ import LoginScreen from '../login'
 
 
 const Tab = createBottomTabNavigator();
-
-
-
 export default Choose = ({ route, navigation }) => {
 
   const { datagiven } = route.params;
@@ -37,16 +34,10 @@ export default Choose = ({ route, navigation }) => {
 
           if (route.name === 'Home') {
             iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'Cart') {
-            iconName = focused ? 'cart' : 'cart-outline';
-          } else if (route.name === 'Profile') {
+          }  else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
-          // } else if (route.name === 'Liked') {
-          //   iconName = focused ? 'thumbs-up' : 'thumbs-up-outline';
-          // }
-
-          // You can return any component that you like here!
+          
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
@@ -60,13 +51,8 @@ export default Choose = ({ route, navigation }) => {
 
       />
       <Tab.Screen name="Profile" component={ProfileScreen} initialParams={{ data: datagiven }} />
-      {/* <Tab.Screen name="Liked" component={LikedScreen} /> */}
-      <Tab.Screen name="Cart" component={CartScreen}
-
-        options={{
-          // tabBarBadge: 0
-        }}
-      />
+      
+      
 
       
 
