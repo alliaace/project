@@ -41,7 +41,7 @@ const LoginRender = ({ navigation }) => {
             })
                 .then((response) => {
                     setBtnValue("LOGIN")
-                    console.log("this is response", response.data);
+                    // console.log("this is response", response.data);
                     navigation.navigate('DasboardUser',
                         {
                             datagiven: response.data

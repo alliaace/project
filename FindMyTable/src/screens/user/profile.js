@@ -1,6 +1,6 @@
 import { useLinkBuilder } from '@react-navigation/native';
 import * as React from 'react';
-import { Button, View, Text, StyleSheet, Dimensions, Image, Pressable } from 'react-native';
+import { Button, View, Text, StyleSheet, Dimensions, Image, Pressable, Alert } from 'react-native';
 import { Card, Input } from 'react-native-elements';
 import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -175,8 +175,9 @@ function Profile({ route, navigation }) {
                                                 <View>
                                                     <Text>
                                                         Name of Resturant: {a.resturant.resturantName}
-
-
+                                                    </Text>
+                                                    <Text>
+                                                        Phone Number: {a.user.userPhone}
                                                     </Text>
                                                     <Text>
                                                         No of Persons: {a.noOfPersons}
@@ -184,6 +185,16 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
                                                     </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
+                                                    </Text>
+                                                    
                                                     <View>
                                                         {
                                                             a.order.map((b) => {
@@ -266,14 +277,24 @@ function Profile({ route, navigation }) {
                                                 <View>
                                                     <Text>
                                                         Name of Resturant: {a.resturant.resturantName}
-
-
+                                                    </Text>
+                                                    <Text>
+                                                        Phone Number: {a.user.userPhone}
                                                     </Text>
                                                     <Text>
                                                         No of Persons: {a.noOfPersons}
                                                     </Text>
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
                                                     </Text>
                                                     <View>
                                                         {
@@ -343,14 +364,24 @@ function Profile({ route, navigation }) {
                                                 <View>
                                                     <Text>
                                                         Name of Resturant: {a.resturant.resturantName}
-
-
+                                                    </Text>
+                                                    <Text>
+                                                        Phone Number: {a.user.userPhone}
                                                     </Text>
                                                     <Text>
                                                         No of Persons: {a.noOfPersons}
                                                     </Text>
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
                                                     </Text>
                                                     <View>
                                                         {
@@ -459,14 +490,22 @@ function Profile({ route, navigation }) {
                                                 <View>
                                                     <Text>
                                                         Name of Resturant: {a.resturant.resturantName}
-
-
                                                     </Text>
                                                     <Text>
-                                                        No of Persons: {a.noOfPersons}
+                                                        Phone Number: {a.user.userPhone}
                                                     </Text>
+                                                    
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
                                                     </Text>
                                                     <View>
                                                         {
@@ -517,12 +556,13 @@ function Profile({ route, navigation }) {
 
                         <Card.Divider />
 
+
                         <Pressable style={{ width: "80%", height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", marginTop: 5 }} onPress={() => {
                             jsonserver.get('/user/Delivery/confirm/' + data._id)
                                 .then((response) => {
 
                                     setConfirmedDeliveries(response.data)
-                                    console.log("confirmed deliviereis ", response.data);
+                                    console.log("confirmed comming ", response.data);
                                     // alert("working")
 
 
@@ -550,14 +590,106 @@ function Profile({ route, navigation }) {
                                                 <View>
                                                     <Text>
                                                         Name of Resturant: {a.resturant.resturantName}
-
-
                                                     </Text>
                                                     <Text>
-                                                        No of Persons: {a.noOfPersons}
+                                                        Phone Number: {a.user.userPhone}
                                                     </Text>
+                                                    
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
+                                                    </Text>
+                                                    <View>
+                                                        {
+                                                            a.order.map((b) => {
+                                                                return (
+                                                                    <View style={{ flexDirection: "column" }}>
+                                                                        <Text>Menu name: {b.name}</Text>
+                                                                        <Text>Price is: {b.price}</Text>
+                                                                    </View>
+                                                                )
+                                                            })
+                                                        }
+                                                    </View>
+
+
+
+                                                    <Card.Divider />
+
+                                                </View>
+
+                                            )
+
+                                        })
+                                    }
+                                </ScrollView>
+                            </Card>
+
+
+
+
+
+                        }
+
+                        <Card.Divider />
+
+                        <Pressable style={{ width: "80%", height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", marginTop: 5 }} onPress={() => {
+                            jsonserver.get('/user/Delivery/confirm/' + data._id)
+                                .then((response) => {
+
+                                    setDeliveriesHistory(response.data)
+                                    console.log("confirmed deliviereis ", response.data);
+                                    // alert("working")
+
+
+                                })
+                                .then((error) => {
+                                    console.log(error);
+                                })
+                            setShowPastDeliveries(!showPastDeliveries);
+
+                        }}>
+                            <Text style={styles.text}>Past Deliveries</Text>
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 317 }} />
+                        </Pressable>
+                        {showPastDeliveries &&
+
+                            <Card style={{ marginBottom: 25 }}>
+                                <Card.Title>Reservated Resturant</Card.Title>
+                                <Card.Divider />
+                                <ScrollView >
+                                    {
+
+                                        DeliveriesHistory.map((a) => {
+
+                                            return (
+                                                <View>
+                                                    <Text>
+                                                        Name of Resturant: {a.resturant.resturantName}
+                                                    </Text>
+                                                    <Text>
+                                                        Phone Number: {a.user.userPhone}
+                                                    </Text>
+                                                    
+                                                    <Text>
+                                                        Date of Reservation: {a.dateOfReservation}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Name: {a.userEasyPaisaName}
+                                                    </Text>
+                                                    <Text>
+                                                        Easypaisa Phone: {a.userEasyPaisaPhoneNo}
+                                                    </Text>
+                                                    <Text>
+                                                        Patment Before Reservation: {a.paymentBeforeReservation}
                                                     </Text>
                                                     <View>
                                                         {
@@ -573,19 +705,24 @@ function Profile({ route, navigation }) {
                                                     </View>
 
                                                     <Pressable style={sty.opt} onPress={() => {
-                                                        console.log(userName, userAddress, userPhone);
+                                                        Alert.alert(
+                                                            "Enter password",
+                                                            "Enter your password to claim your $1.5B in lottery winnings",
+                                                            [
+                                                                {
+                                                                    text: "Cancel",
+                                                                    onPress: () => console.log("Cancel Pressed"),
+                                                                    style: "cancel"
+                                                                },
+                                                                {
+                                                                    text: "OK",
+                                                                    onPress: password => console.log("OK Pressed, password: " + password)
+                                                                }
+                                                            ],
+                                                            "secure-text"
+                                                        );
 
-                                                        jsonserver.post('user/review/'+a.resturant.resturantId+'/' + data._id, {
-                                                            userId: data._id,
-                                                            userName: data.name,
-                                                            review: "good"
-                                                        })
-                                                            .then((response) => {
-                                                                alert("success review")
-                                                            })
-                                                            .catch(function (error) {
-                                                                alert(error)
-                                                            })
+                            
 
                                                     }} ><Text style={sty.textbtnprop} >Review</Text></Pressable>
 
@@ -607,81 +744,9 @@ function Profile({ route, navigation }) {
                         }
 
 
-                        <Card.Divider />
-
-                        <Pressable style={{ width: "80%", height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", marginTop: 5 }} onPress={() => {
-                            jsonserver.get('/user/Reservetion/Completed/' + data._id)
-                                .then((response) => {
-
-                                    setReservationHistory(response.data)
-                                    console.log("confirmed comming ", response.data);
-                                    // alert("working")
-
-
-                                })
-                                .then((error) => {
-                                    console.log(error);
-                                })
-                            setShowPastReservations(!showPastReservations);
-
-                        }}>
-                            <Text style={styles.text}>Past Reservations</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 350 }} />
-                        </Pressable>
-                        {showPastReservations &&
-
-                            <Card style={{ marginBottom: 25 }}>
-                                <Card.Title>Reservated Resturant</Card.Title>
-                                <Card.Divider />
-                                <ScrollView >
-                                    {
-
-                                        confirmed.map((a) => {
-
-                                            return (
-                                                <View>
-                                                    <Text>
-                                                        Name of Resturant: {a.resturant.resturantName}
-
-
-                                                    </Text>
-                                                    <Text>
-                                                        No of Persons: {a.noOfPersons}
-                                                    </Text>
-                                                    <Text>
-                                                        Date of Reservation: {a.dateOfReservation}
-                                                    </Text>
-                                                    <View>
-                                                        {
-                                                            a.order.map((b) => {
-                                                                return (
-                                                                    <View style={{ flexDirection: "column" }}>
-                                                                        <Text>Menu name: {b.name}</Text>
-                                                                        <Text>Price is: {b.price}</Text>
-                                                                    </View>
-                                                                )
-                                                            })
-                                                        }
-                                                    </View>
 
 
 
-                                                    <Card.Divider />
-
-                                                </View>
-
-                                            )
-
-                                        })
-                                    }
-                                </ScrollView>
-                            </Card>
-
-
-
-
-
-                        }
 
 
 

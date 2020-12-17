@@ -35,10 +35,9 @@ const DashBoardGetter = (props) => {
     const [cartData, setCartData] = useState([])
     const [userData, setUserData] = useState(props.UserData)
     const [date, setDate] = useState(getCurrentDate())
-    const [textArea, setTextArea] = useState("")
-    const [noOfPerson, setNoOfPerson] = useState(0)
     const [textreservation, setTextReservation] = useState("CONFIRM DELIVERY")
     const [totalPrice, setTotalPrice] = useState(0)
+    const [address, setAddress] = useState("")
 
 
 
@@ -70,7 +69,7 @@ const DashBoardGetter = (props) => {
     const getRestarent = () => {
         jsonserver.get('/resturant/delivery')
             .then((response) => {
-                // console.log(response);
+                console.log("------------------------------------------------------------", response.data);
                 setData(response.data)
 
             })
@@ -89,6 +88,35 @@ const DashBoardGetter = (props) => {
 
     return (
         <View style={{ backgroundColor: "#feb334" }}>
+            <Input placeholder="Search..." inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={
+                (search) => {
+
+                    if (search != "") {
+                        jsonserver.get('/resturant/searchByType/' + search)
+                            .then((response) => {
+                                // console.log(response.data);
+                                setData(response.data)
+
+                            })
+                            .then((error) => {
+                                console.log(error);
+                            })
+                    } else {
+                        jsonserver.get('/resturant/delivery')
+                            .then((response) => {
+                                // console.log(response.data);
+                                setData(response.data)
+
+                            })
+                            .then((error) => {
+                                console.log(error);
+                            })
+                    }
+
+
+
+                }
+            } />
 
             {/* <TextInput placeholder="Search Anything" style={{ borderWidth: 1, borderColor: "white" }} placeholderTextColor="white" /> */}
             <FlatList
@@ -158,7 +186,7 @@ const DashBoardGetter = (props) => {
                                                                             // console.log(cartData)
                                                                         }} >
                                                                             {/* <Image source={require('../../media/res/drawable-xxxhdpi/baseline_add_circle_outline_black_48.png')} style={{ width: 30, height: 30, marginLeft: Dimensions.get("window").width }} /> */}
-                                                                            <Ionicons name="add-circle" size={25} style={{ marginLeft: Dimensions.get("window").width - 225 }} />
+                                                                            <Ionicons name="add-circle-outline" size={25} style={{ marginLeft: Dimensions.get("window").width - 225 }} />
                                                                             {/* <Text>hello</Text> */}
                                                                         </Pressable>
                                                                     </View>
@@ -223,24 +251,59 @@ const DashBoardGetter = (props) => {
                                             </Pressable>
                                             <Text style={styles.labeltext}>DETAILS</Text>
                                             {/* <Text style={{ color: "red" }}>{errorUp}</Text> noofpersons,date,time,comments */}
+                                            {/* <Input placeholder="Number of Persons" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} /> */}
+                                            <Input placeholder="Address" leftIcon={{ type: 'font-awesome', name: 'map-marker-alt' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(ad) => setAddress(ad)} />
+                                            <DatePicker
+                                                style={{
+                                                    height: 50,
+                                                    width: 200,
 
-                                            <Input placeholder="Address" leftIcon={{ type: 'font-awesome', name: 'map-marker-alt' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
+                                                    borderRadius: 15,
+                                                    paddingLeft: 15,
+                                                    fontSize: 16,
+                                                    marginTop: 15,
+                                                    color: "black"
+                                                }}
+                                                date={date}
+                                                mode="date"
+                                                placeholder="select date"
+                                                format="YYYY-MM-DD"
+                                                minDate="2020-11-10"
+                                                maxDate="2020-12-31"
+                                                confirmBtnText="Confirm"
+                                                cancelBtnText="Cancel"
+                                                customStyles={{
+                                                    dateIcon: {
+                                                        position: 'absolute',
+                                                        left: 0,
+                                                        top: 4,
+                                                        marginLeft: 0
+                                                    },
+                                                    dateInput: {
+                                                        marginLeft: 36
+                                                    }
+                                                    // ... You can check the source to find the other keys.
+                                                }}
+                                                onDateChange={(date) => { setDate(date) }}
+                                            />
 
 
                                             {/* <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Select Date" containerStyle={styles.input}  placeholderTextColor="black" onChangeText={(ps) => setPass(ps)}  /> */}
                                             <Pressable style={styles.btn} onPress={() => {
-                                                console.log("request sent");
-                                                console.log(userData._id, tempid, cartData, noOfPerson, date, textArea);
-                                                jsonserver.post('/reservation', {
+                                                // console.log("request sent");
+                                                console.log(userData._id, tempid, cartData, address, date);
+                                                jsonserver.post('/delivery', {
                                                     userId: userData._id,
                                                     resturantId: tempid,
-                                                    noOfPersons: noOfPerson,
-                                                    dateOfReservation: date,
+                                                    totalBill: totalPrice,
+                                                    address: address,
+
                                                     order: cartData
                                                 })
                                                     .then((response) => {
                                                         console.log("this is response", response.data);
-                                                        setTextReservation("CONFIRMED")
+
+                                                        alert("confimed")
 
                                                     })
                                                     .catch(function (error) {

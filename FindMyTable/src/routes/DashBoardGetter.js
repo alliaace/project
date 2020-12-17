@@ -226,23 +226,31 @@ const DashBoardGetter = (props) => {
                                                     return (
                                                         <ScrollView>
                                                             <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
-                                                                <Text style={{ fontSize: 20, backgroundColor: "red", }}>{c.name}                 {c.price}.00
+                                                                <Text style={{ fontSize: 20, }}>{c.name}            {c.price}
 
 
-                                                                <Pressable onPress={() => {
+                                                                    <Pressable onPress={() => {
 
+                                                                        console.log("orignal is : ", cartData)
                                                                         setCheckCartData(false)
                                                                         setTotalPrice(totalPrice - c.price)
                                                                         setCartStatus(cartstatus - 1);
-                                                                        let cartDataCopy = [...cartData];
-                                                                        let forjson = { name: c.name, price: c.price, discription: c.discription }
-                                                                        cartDataCopy.pop(forjson);
-                                                                        setCartData(cartDataCopy);
-                                                                        setCartData(cartDataCopy);
-                                                                        console.log(cartData)
+                                                                        let arr = [];
+                                                                        arr = cartData
+
+                                                                        function checkAdult(cartdata) {
+                                                                            return cartdata.name === c.name;
+                                                                        }
+                                                                        let ind = cartData.findIndex(checkAdult)
+                                                                        console.log(ind, 1);
+                                                                        arr.splice(ind)
+                                                                        setCartData(arr)
+                                                                        console.log("updated is : ", cartData);
+
+
 
                                                                     }}>
-                                                                        <Ionicons name="trash-outline" size={40} style={{ backgroundColor: "pink", marginLeft: 500 }} />
+                                                                        <Ionicons name="trash-outline" size={30} color="black" style={{ marginLeft: 20 }} />
                                                                     </Pressable>
 
                                                                 </Text>
@@ -287,7 +295,7 @@ const DashBoardGetter = (props) => {
                                             <Text style={styles.labeltext}>DETAILS</Text>
                                             {/* <Text style={{ color: "red" }}>{errorUp}</Text> noofpersons,date,time,comments */}
 
-                                            <Input placeholder="Number of Persons" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
+                                            <Input placeholder="Number of Persons" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
                                             <DatePicker
                                                 style={{
                                                     height: 50,
@@ -329,7 +337,7 @@ const DashBoardGetter = (props) => {
                                             <Pressable style={styles.btn} onPress={() => {
                                                 console.log("request sent");
                                                 console.log(userData._id, tempid, cartData, noOfPerson, date, textArea, easypaisaName, phoneNumber, amount);
-                                                jsonserver.post('/Reservation', {
+                                                jsonserver.post('/reservation', {
 
                                                     userId: userData._id,
                                                     resturantId: tempid,
@@ -339,12 +347,13 @@ const DashBoardGetter = (props) => {
                                                     userEasyPaisaName: easypaisaName,
                                                     userEasyPaisaPhoneNo: phoneNumber,
                                                     paymentBeforeReservation: amount,
+                                                    totalBill: totalPrice
 
 
                                                 })
                                                     .then((response) => {
                                                         console.log("this is response", response.data);
-                                                        setTextReservation("CONFIRMED")
+                                                        alert("CONFIRMED")
 
                                                     })
                                                     .catch(function (error) {

@@ -63,6 +63,7 @@ export default function gochoose({ route, navigation }) {
     first: FirstRoute,
     second: SecondRoute,
     // third: ThirdRoute,
+    
   });
 
   return (
@@ -71,7 +72,17 @@ export default function gochoose({ route, navigation }) {
       renderScene={renderScene}
       onIndexChange={setIndex}
       initialLayout={initialLayout}
-      style={{ backgroundColor: "pink" }}
+      labelStyle={{ backgroundColor: "red" }}
+      contentContainerStyle={{ backgroundColor: "red" }}
+      style={({route})=>{
+
+        backgroundColor:"red"
+
+      }}
+      indicatorContainerStyle={{ backgroundColor: "red" }}
+      indicatorStyle={{ backgroundColor: "red" }}
+      tabStyle={{ backgroundColor: "red",height:5000 }}
+      activeColor={{backgroundColor:"red"}}
     />
   );
 }
