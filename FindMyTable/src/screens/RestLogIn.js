@@ -33,7 +33,7 @@ const RestLoginRender = ({ navigation }) => {
 
             setErrorUp("All field are required")
             check = false
-            console.log(errorUp)
+            // console.log(errorUp)
 
         }
         if (check) {
@@ -44,7 +44,7 @@ const RestLoginRender = ({ navigation }) => {
                 password: pass
             })
                 .then((response) => {
-                    console.log(response.data);
+                    // console.log(response.data);
                     setBtnValue("LOGIN")
                     // console.log("this is response", response.data);
                     navigation.navigate('DasboardRest',
@@ -92,7 +92,7 @@ const RestLoginRender = ({ navigation }) => {
 
                 </View>
                 <View style={{flexDirection:"row"}}><Pressable style={styles.opt} onPress={()=>navigation.navigate('LoginUser')}><Text style={styles.black}>User?</Text></Pressable>
-                    <Pressable style={styles.opt} onPress={()=>navigation.navigate('LoginRider')}><Text style={styles.black}>Rider?</Text></Pressable>
+                    {/* <Pressable style={styles.opt} onPress={()=>navigation.navigate('LoginRider')}><Text style={styles.black}>Rider?</Text></Pressable> */}
                     </View>
                 <Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text>
 

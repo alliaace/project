@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { View, Text, Button, Pressable, StatusBar, TextInput, StyleSheet, Image } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ScrollView } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/FontAwesome'
-import DashboardScreen from './user/dashboardUser'
+
 import jsonserver from '../server/jsonServer'
 import styles from '../styles/style'
 import { Input } from 'react-native-elements';
@@ -83,7 +81,7 @@ const LoginRender = ({ navigation }) => {
                 </View>
                 <View style={{ flexDirection: "row" }}>
                     <Pressable style={styles.opt} onPress={() => navigation.navigate('LoginRest')}><Text style={styles.black}>Restaurant?</Text></Pressable>
-                    <Pressable style={styles.opt} onPress={() => navigation.navigate('LoginRider')}><Text style={styles.black}>Rider?</Text></Pressable>
+                    {/* <Pressable style={styles.opt} onPress={() => navigation.navigate('LoginRider')}><Text style={styles.black}>Rider?</Text></Pressable> */}
 
                 </View>
                 <Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text><Text></Text>

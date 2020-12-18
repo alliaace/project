@@ -87,7 +87,7 @@ const DashBoardGetter = (props) => {
 
 
     return (
-        <View style={{ backgroundColor: "#feb334" }}>
+        <ScrollView style={{ backgroundColor: "#feb334" }}>
             <Input placeholder="Search..." inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={
                 (search) => {
 
@@ -324,9 +324,10 @@ const DashBoardGetter = (props) => {
 
                     </Pressable>}
             />
+            
             <Text></Text>
 
-        </View>
+        </ScrollView>
     )
 }
 

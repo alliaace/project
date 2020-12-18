@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Text, Image, View, Button, Pressable, Dimensions, StatusBar, BackHandler } from 'react-native'
 import { FlatList, ScrollView, TextInput } from 'react-native-gesture-handler'
-import { Card, ListItem, Icon, Overlay, SocialIcon, withBadge, Badge, Input } from 'react-native-elements'
+import { Card, ListItem, Icon, Overlay, SocialIcon, withBadge, Badge, Input, Avatar } from 'react-native-elements'
 import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import jsonserver from '../server/jsonServer'
@@ -10,6 +10,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CartScreen from '../screens/user/cart'
 import DashBoardUser from '../screens/user/dashboardUser'
 import DatePicker from 'react-native-datepicker'
+import { ActivityIndicator } from 'react-native';
+import { RefreshControl } from 'react-native';
 
 
 const Tab = createBottomTabNavigator();
@@ -44,6 +46,45 @@ const DashBoardGetter = (props) => {
     const [easypaisaName, setEasypaisaName] = useState("")
     const [phoneNumber, setphoneNumber] = useState(0)
     const [amount, setAmount] = useState(0)
+    const [activity, setActivity] = useState(true)
+    const [activity1, setActivity1] = useState(true)
+    const [activity2, setActivity2] = useState(true)
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [popularRest, setPopularRest] = useState([])
+
+    const wait = (timeout) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, timeout);
+        });
+    }
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        jsonserver.get('/resturant/popularReservationRseturants')
+            .then((response) => {
+                console.log("popular is: ----------->>>", response.data);
+                setPopularRest(response.data)
+                // alert("working")
+
+
+            })
+            .then((error) => {
+                console.log("popular error ", error);
+            })
+        jsonserver.get('/resturant')
+            .then((response) => {
+                // console.log(response.data);
+                setData(response.data)
+                setActivity(false)
+
+            })
+            .then((error) => {
+                console.log(error);
+            })
+
+
+        wait(2000).then(() => setRefreshing(false));
+    }, []);
 
 
 
@@ -64,8 +105,9 @@ const DashBoardGetter = (props) => {
 
         jsonserver.get('/resturant/menu/' + id)
             .then((response) => {
-                console.log("menu is : ", response.data);
+                // console.log("menu is : ", response.data);
                 setMenu(response.data)
+                setActivity1(false)
             })
             .then((error) => {
                 console.log(error);
@@ -74,15 +116,28 @@ const DashBoardGetter = (props) => {
 
     };
     const getRestarent = () => {
+        jsonserver.get('/resturant/popularReservationRseturants')
+            .then((response) => {
+                console.log("popular is: ----------->>>", response.data);
+                setPopularRest(response.data)
+
+
+            })
+            .then((error) => {
+                console.log("popular error ", error);
+            })
         jsonserver.get('/resturant')
             .then((response) => {
                 // console.log(response.data);
                 setData(response.data)
+                setActivity(false)
 
             })
             .then((error) => {
                 console.log(error);
             })
+
+
     };
     if (control == true) {
         getRestarent();
@@ -94,7 +149,15 @@ const DashBoardGetter = (props) => {
 
 
     return (
-        <View style={{ backgroundColor: "#feb334" }}>
+        <ScrollView style={{ backgroundColor: "#feb334" }}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+
+
+        >
+            {/* <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> */}
+            {/* <ActivityIndicator color="white" animating={false} /> */}
             <Input placeholder="Search..." inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={
                 (search) => {
 
@@ -104,6 +167,7 @@ const DashBoardGetter = (props) => {
                                 // console.log(response.data);
                                 setData(response.data)
 
+
                             })
                             .then((error) => {
                                 console.log(error);
@@ -111,8 +175,8 @@ const DashBoardGetter = (props) => {
                     } else {
                         jsonserver.get('/resturant')
                             .then((response) => {
-                                // console.log(response.data);
                                 setData(response.data)
+                                setActivity(false)
 
                             })
                             .then((error) => {
@@ -126,257 +190,571 @@ const DashBoardGetter = (props) => {
             } />
 
             {/* <TextInput placeholder="Search Anything" style={{ borderWidth: 1, borderColor: "white" }} placeholderTextColor="white" /> */}
-            <FlatList
-                data={data}
-                keyExtractor={data._id}
-                renderItem={({ item }) =>
-                    <Pressable onPress={() => {
-                        setTempId(item._id)
-                        console.log("tempid again is: ", tempid);
-                        toggleOverlay(item._id);
-                    }
+            {activity ?
+                <ActivityIndicator animating={activity} color="black" /> :
 
-                    }>
+                <ScrollView
 
 
-                        <Card style={{ backgroundColor: "pink" }}>
-                            <Card.Title style={{ fontSize: 18 }}>{item.name}</Card.Title>
-                            <Card.Divider />
-                            <Card.Image source={{ uri: item.url }} />
-                            <Text style={{ marginBottom: 10 }}>
-                                <Text style={{ fontWeight: "bold" }}>Location:</Text> {item.location}
+                >
+                    <Text style={{ marginTop: 5, fontSize: 26, color: "white", marginLeft: 15 }} >Popular Restuarants</Text>
+                    <FlatList
 
-                            </Text>
-
-                            <Pressable style={{ backgroundColor: "#feb334", alignItems: "center", height: 35, justifyContent: "center", borderRadius: 10 }} onPress={() => toggleOverlay(item._id)}>
-                                <Text>SHOW MENU</Text>
-                            </Pressable>
+                        horizontal={true}
 
 
-                            <View style={{ flex: 1 }}>
+                        data={popularRest}
+                        keyExtractor={data._id}
+                        renderItem={({ item }) =>
+                            <Pressable onPress={() => {
+                                setTempId(item._id)
+                                console.log("tempid again is: ", tempid);
+                                toggleOverlay(item._id);
+                            }
 
-                                <Overlay isVisible={visible} onBackdropPress={
-                                    () => {
+                            }>
 
-                                        toggleOverlay(item._id);
-                                    }
-                                }>
-                                    <View flexDirection="row">
-                                        <Image source={require('../media/logo.png')} style={{ width: 100, height: 100, marginLeft: 130 }} />
-                                        <Pressable onPress={toggleOverlay}>
-                                            {/* <Image source={require('../media/res/drawable-xxxhdpi/baseline_clear_black_24.png')} style={{ width: 30, height: 30, marginLeft: 120 }} /> */}
-                                            <Ionicons name="close-outline" size={40} color="black" style={{ marginLeft: 90 }} />
-                                        </Pressable>
 
-                                    </View>
+                                <Card style={{ backgroundColor: "pink" }}>
+                                    <Card.Title style={{ fontSize: 18 }}>{item.name}</Card.Title>
+                                    <Card.Divider />
+                                    <Card.Image source={{ uri: item.url }} />
+                                    <Text style={{ marginBottom: 10 }}>
+                                        <Text style={{ fontWeight: "bold" }}>Location:</Text> {item.location}
 
-                                    <ScrollView>
-                                        <Card style={{ marginBottom: 25, width: Dimensions.get("window").width - 20 }}>
-                                            <Card.Title>Menu</Card.Title>
-                                            <Card.Divider />
-                                            <ScrollView >
-                                                {
-                                                    menu.map((a) => {
-                                                        return (
-                                                            <Pressable onPress={() => alert(a._id)}>
-                                                                <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334" }}>
-                                                                    <Text style={{ fontSize: 26, fontWeight: "bold", paddingLeft: 10, color: "white" }}>{a.name}</Text>
-                                                                    <View style={{ flexDirection: "row" }}>
-                                                                        <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>PKR {a.price}.00</Text>
-                                                                        <Pressable onPress={() => {
-                                                                            setCheckCartData(false)
-                                                                            setTotalPrice(totalPrice + a.price)
-                                                                            setCartStatus(cartstatus + 1);
-                                                                            let cartDataCopy = [...cartData];
-                                                                            let forjson = { name: a.name, price: a.price, discription: a.discription }
-                                                                            cartDataCopy.push(forjson);
-                                                                            setCartData(cartDataCopy);
-                                                                            setCartData(cartDataCopy);
-                                                                            // console.log(cartData)
-                                                                        }} >
-                                                                            <Image source={require('../media/res/drawable-xxxhdpi/baseline_add_circle_outline_black_48.png')} style={{ width: 30, height: 30, marginLeft: Dimensions.get("window").width - 250 }} />
+                                    </Text>
+
+                                    <Pressable style={{ backgroundColor: "#feb334", alignItems: "center", height: 35, justifyContent: "center", borderRadius: 10 }} onPress={() => toggleOverlay(item._id)}>
+                                        <Text>SHOW MENU</Text>
+                                    </Pressable>
+
+
+                                    <View style={{ flex: 1 }}>
+
+                                        <Overlay isVisible={visible} onBackdropPress={
+                                            () => {
+
+                                                toggleOverlay(item._id);
+                                            }
+                                        }>
+                                            <View flexDirection="row">
+                                                <Image source={require('../media/logo.png')} style={{ width: 100, height: 100, marginLeft: 130 }} />
+                                                <Pressable onPress={toggleOverlay}>
+                                                    {/* <Image source={require('../media/res/drawable-xxxhdpi/baseline_clear_black_24.png')} style={{ width: 30, height: 30, marginLeft: 120 }} /> */}
+                                                    <Ionicons name="close-outline" size={40} color="black" style={{ marginLeft: 90 }} />
+                                                </Pressable>
+
+                                            </View>
+
+                                            <ScrollView>
+                                                <Card style={{ marginBottom: 25, width: Dimensions.get("window").width - 20 }}>
+                                                    <Card.Title>Menu</Card.Title>
+                                                    <Card.Divider />
+
+                                                    {activity1 ? <ActivityIndicator color="black" animating={activity1} /> :
+                                                        <ScrollView >
+                                                            {
+                                                                menu.map((a) => {
+                                                                    return (
+                                                                        <Pressable onPress={() => alert(a._id)}>
+                                                                            <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334" }}>
+                                                                                <Text style={{ fontSize: 26, fontWeight: "bold", paddingLeft: 10, color: "white" }}>{a.name}</Text>
+                                                                                <View style={{ flexDirection: "row" }}>
+                                                                                    <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>PKR {a.price}.00</Text>
+                                                                                    <Pressable onPress={() => {
+                                                                                        setCheckCartData(false)
+                                                                                        setTotalPrice(totalPrice + a.price)
+                                                                                        setCartStatus(cartstatus + 1);
+                                                                                        let cartDataCopy = [...cartData];
+                                                                                        let forjson = { name: a.name, price: a.price, discription: a.discription }
+                                                                                        cartDataCopy.push(forjson);
+                                                                                        setCartData(cartDataCopy);
+                                                                                        setCartData(cartDataCopy);
+                                                                                        // console.log(cartData)
+                                                                                    }} >
+                                                                                        <Image source={require('../media/res/drawable-xxxhdpi/baseline_add_circle_outline_black_48.png')} style={{ width: 30, height: 30, alignSelf: "flex-end" }} />
+                                                                                    </Pressable>
+                                                                                </View>
+                                                                            </View>
                                                                         </Pressable>
-                                                                    </View>
-                                                                </View>
-                                                            </Pressable>
-                                                        );
-                                                    })
-                                                }
-                                            </ScrollView>
-                                        </Card>
-                                    </ScrollView>
-                                    <Pressable onPress={toggleOverlay2}>
-                                        <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
-                                            <Badge value={cartstatus} status="primary" />
-                                            <Badge value={<Text style={styles.textbtnprop}>CHECK MENU</Text>} badgeStyle={{ backgroundColor: "transparent", borderWidth: 0 }} />
-
-                                        </View>
-                                    </Pressable>
-
-                                    <Overlay isVisible={visible2} onBackdropPress={toggleOverlay2} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
-                                        <View style={styles.formcontainer}>
-                                            <StatusBar translucent backgroundColor="#feb334" />
-                                            <Pressable onPress={toggleOverlay2}>
-                                                <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
-                                            </Pressable>
-                                            <Text style={styles.labeltext}>YOUR ORDER</Text>
-
-                                            {
-                                                cartData.map((c) => {
-                                                    return (
-                                                        <ScrollView>
-                                                            <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
-                                                                <Text style={{ fontSize: 20, }}>{c.name}            {c.price}
-
-
-                                                                    <Pressable onPress={() => {
-
-                                                                        console.log("orignal is : ", cartData)
-                                                                        setCheckCartData(false)
-                                                                        setTotalPrice(totalPrice - c.price)
-                                                                        setCartStatus(cartstatus - 1);
-                                                                        let arr = [];
-                                                                        arr = cartData
-
-                                                                        function checkAdult(cartdata) {
-                                                                            return cartdata.name === c.name;
-                                                                        }
-                                                                        let ind = cartData.findIndex(checkAdult)
-                                                                        console.log(ind, 1);
-                                                                        arr.splice(ind)
-                                                                        setCartData(arr)
-                                                                        console.log("updated is : ", cartData);
-
-
-
-                                                                    }}>
-                                                                        <Ionicons name="trash-outline" size={30} color="black" style={{ marginLeft: 20 }} />
-                                                                    </Pressable>
-
-                                                                </Text>
-
-
-                                                            </View>
+                                                                    );
+                                                                })
+                                                            }
                                                         </ScrollView>
-                                                    )
-                                                })
+                                                    }
+                                                </Card>
+                                            </ScrollView>
+                                            <Pressable onPress={toggleOverlay2}>
+                                                <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
+                                                    <Badge value={cartstatus} status="primary" />
+                                                    <Badge value={<Text style={styles.textbtnprop}>CHECK MENU</Text>} badgeStyle={{ backgroundColor: "transparent", borderWidth: 0 }} />
 
-                                            }
-                                            {checkCartData ?
-                                                <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
-                                                    <Text style={{ marginLeft: 20, fontSize: 20 }}>You have no order</Text>
+                                                </View>
+                                            </Pressable>
 
-                                                </View> :
-                                                <Text></Text>
+                                            <Overlay isVisible={visible2} onBackdropPress={toggleOverlay2} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
+                                                <View style={styles.formcontainer}>
+                                                    <StatusBar translucent backgroundColor="#feb334" />
+                                                    <Pressable onPress={toggleOverlay2}>
+                                                        <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
+                                                    </Pressable>
+                                                    <Text style={styles.labeltext}>YOUR ORDER</Text>
 
-                                            }
-                                            <Text style={{ fontSize: 20 }}>Total : {totalPrice}</Text>
+                                                    {
+                                                        cartData.map((c) => {
+                                                            return (
+                                                                <ScrollView>
+                                                                    <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
+                                                                        <Text style={{ fontSize: 20, }}>{c.name}            {c.price}
+
+
+                                                                            <Pressable onPress={() => {
+
+                                                                                setCheckCartData(false)
+                                                                                setTotalPrice(totalPrice - c.price)
+                                                                                setCartStatus(cartstatus - 1);
+                                                                                let arr = [];
+                                                                                arr = cartData
+
+                                                                                function checkAdult(cartdata) {
+                                                                                    return cartdata.name === c.name;
+                                                                                }
+                                                                                let ind = cartData.findIndex(checkAdult)
+                                                                                console.log("before ", arr);
+                                                                                console.log(ind);
+                                                                                arr.splice(ind, 1)
+                                                                                console.log("after ", arr);
+
+                                                                                setCartData(arr)
+
+                                                                            }}>
+                                                                                <Ionicons name="trash-outline" size={30} color="black" style={{ marginLeft: 20 }} />
+                                                                            </Pressable>
+
+                                                                        </Text>
+
+
+                                                                    </View>
+                                                                </ScrollView>
+                                                            )
+                                                        })
+
+                                                    }
+                                                    {checkCartData ?
+                                                        <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
+                                                            <Text style={{ marginLeft: 20, fontSize: 20 }}>You have no order</Text>
+
+                                                        </View> :
+                                                        <Text></Text>
+
+                                                    }
+                                                    <Text style={{ fontSize: 20 }}>Total : {totalPrice}</Text>
 
 
 
 
-                                        </View>
-                                    </Overlay>
-                                    <Pressable onPress={toggleOverlay1}>
-                                        <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
+                                                </View>
+                                            </Overlay>
+                                            <Pressable onPress={toggleOverlay1}>
+                                                <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
 
-                                            <Text style={styles.textbtnprop}>
-                                                RESERVE
-                                            </Text>
-                                        </View>
+                                                    <Text style={styles.textbtnprop}>
+                                                        RESERVE
+                    </Text>
+                                                </View>
+                                            </Pressable>
+
+                                            <Overlay isVisible={visible1} onBackdropPress={toggleOverlay1} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
+                                                <View style={styles.formcontainer}>
+                                                    <StatusBar translucent backgroundColor="#feb334" />
+                                                    <Pressable onPress={toggleOverlay1}>
+                                                        <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
+                                                    </Pressable>
+                                                    <Text style={styles.labeltext}>DETAILS</Text>
+                                                    {/* <Text style={{ color: "red" }}>{errorUp}</Text> noofpersons,date,time,comments */}
+
+                                                    <Input placeholder="Number of Persons" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
+                                                    <DatePicker
+                                                        style={{
+                                                            height: 50,
+                                                            width: 200,
+
+                                                            borderRadius: 15,
+                                                            paddingLeft: 15,
+                                                            fontSize: 16,
+                                                            marginTop: 15,
+                                                            color: "black"
+                                                        }}
+                                                        date={date}
+                                                        mode="date"
+                                                        placeholder="select date"
+                                                        format="YYYY-MM-DD"
+                                                        minDate="2020-11-10"
+                                                        maxDate="2020-12-31"
+                                                        confirmBtnText="Confirm"
+                                                        cancelBtnText="Cancel"
+                                                        customStyles={{
+                                                            dateIcon: {
+                                                                position: 'absolute',
+                                                                left: 0,
+                                                                top: 4,
+                                                                marginLeft: 0
+                                                            },
+                                                            dateInput: {
+                                                                marginLeft: 36
+                                                            }
+                                                            // ... You can check the source to find the other keys.
+                                                        }}
+                                                        onDateChange={(date) => { setDate(date) }}
+                                                    />
+                                                    <Input placeholder="Easypaisa username" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(ename) => setEasypaisaName(ename)} />
+                                                    <Input placeholder="phone number" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(phonen) => setphoneNumber(phonen)} />
+                                                    <Input placeholder='amount' keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(am) => setAmount(am)} />
+
+                                                    {/* <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Select Date" containerStyle={styles.input}  placeholderTextColor="black" onChangeText={(ps) => setPass(ps)}  /> */}
+                                                    <Pressable style={styles.btn} onPress={() => {
+                                                        console.log("request sent");
+                                                        console.log(userData._id, tempid, cartData, noOfPerson, date, textArea, easypaisaName, phoneNumber, amount);
+                                                        jsonserver.post('/reservation', {
+
+                                                            userId: userData._id,
+                                                            resturantId: tempid,
+                                                            noOfPersons: noOfPerson,
+                                                            dateOfReservation: date,
+                                                            order: cartData,
+                                                            userEasyPaisaName: easypaisaName,
+                                                            userEasyPaisaPhoneNo: phoneNumber,
+                                                            paymentBeforeReservation: amount,
+                                                            totalBill: totalPrice
+
+
+                                                        })
+                                                            .then((response) => {
+                                                                console.log("this is response", response.data);
+                                                                alert("CONFIRMED")
+
+                                                            })
+                                                            .catch(function (error) {
+                                                                console.log(error.message);
+
+                                                            })
+                                                    }} ><Text style={styles.textbtnprop} >{textreservation}</Text></Pressable>
+                                                    <Text></Text>
+
+                                                </View>
+                                            </Overlay>
+
+
+
+                                        </Overlay>
+                                    </View>
+                                </Card>
+
+                            </Pressable>}
+                    />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    <Text style={{ marginTop: 5, fontSize: 26, color: "white", marginLeft: 15 }} >All Restuarants</Text>
+                    <FlatList
+
+                        horizontal={false}
+
+
+                        data={data}
+                        keyExtractor={data._id}
+                        renderItem={({ item }) =>
+                            <Pressable onPress={() => {
+                                setTempId(item._id)
+                                console.log("tempid again is: ", tempid);
+                                toggleOverlay(item._id);
+                            }
+
+                            }>
+
+
+                                <Card style={{ backgroundColor: "pink" }}>
+                                    <Card.Title style={{ fontSize: 18 }}>{item.name}</Card.Title>
+                                    <Card.Divider />
+                                    <Card.Image source={{ uri: item.url }} />
+                                    <Text style={{ marginBottom: 10 }}>
+                                        <Text style={{ fontWeight: "bold" }}>Location:</Text> {item.location}
+
+                                    </Text>
+
+                                    <Pressable style={{ backgroundColor: "#feb334", alignItems: "center", height: 35, justifyContent: "center", borderRadius: 10 }} onPress={() => toggleOverlay(item._id)}>
+                                        <Text>SHOW MENU</Text>
                                     </Pressable>
 
-                                    <Overlay isVisible={visible1} onBackdropPress={toggleOverlay1} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
-                                        <View style={styles.formcontainer}>
-                                            <StatusBar translucent backgroundColor="#feb334" />
-                                            <Pressable onPress={toggleOverlay1}>
-                                                <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
-                                            </Pressable>
-                                            <Text style={styles.labeltext}>DETAILS</Text>
-                                            {/* <Text style={{ color: "red" }}>{errorUp}</Text> noofpersons,date,time,comments */}
 
-                                            <Input placeholder="Number of Persons" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
-                                            <DatePicker
-                                                style={{
-                                                    height: 50,
-                                                    width: 200,
+                                    <View style={{ flex: 1 }}>
 
-                                                    borderRadius: 15,
-                                                    paddingLeft: 15,
-                                                    fontSize: 16,
-                                                    marginTop: 15,
-                                                    color: "black"
-                                                }}
-                                                date={date}
-                                                mode="date"
-                                                placeholder="select date"
-                                                format="YYYY-MM-DD"
-                                                minDate="2020-11-10"
-                                                maxDate="2020-12-31"
-                                                confirmBtnText="Confirm"
-                                                cancelBtnText="Cancel"
-                                                customStyles={{
-                                                    dateIcon: {
-                                                        position: 'absolute',
-                                                        left: 0,
-                                                        top: 4,
-                                                        marginLeft: 0
-                                                    },
-                                                    dateInput: {
-                                                        marginLeft: 36
+                                        <Overlay isVisible={visible} onBackdropPress={
+                                            () => {
+
+                                                toggleOverlay(item._id);
+                                            }
+                                        }>
+                                            <View flexDirection="row">
+                                                <Image source={require('../media/logo.png')} style={{ width: 100, height: 100, marginLeft: 130 }} />
+                                                <Pressable onPress={toggleOverlay}>
+                                                    {/* <Image source={require('../media/res/drawable-xxxhdpi/baseline_clear_black_24.png')} style={{ width: 30, height: 30, marginLeft: 120 }} /> */}
+                                                    <Ionicons name="close-outline" size={40} color="black" style={{ marginLeft: 90 }} />
+                                                </Pressable>
+
+                                            </View>
+
+                                            <ScrollView>
+                                                <Card style={{ marginBottom: 25, width: Dimensions.get("window").width - 20 }}>
+                                                    <Card.Title>Menu</Card.Title>
+                                                    <Card.Divider />
+
+                                                    {activity1 ? <ActivityIndicator color="black" animating={activity1} /> :
+                                                        <ScrollView >
+                                                            {
+                                                                menu.map((a) => {
+                                                                    return (
+                                                                        <Pressable onPress={() => alert(a._id)}>
+                                                                            <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334", flexDirection: "row",height:70 }}>
+                                                                                <View>
+                                                                                    <Avatar
+                                                                                        size="medium"
+                                                                                        rounded
+                                                                                        source={{
+                                                                                            uri:
+                                                                                                'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
+                                                                                        }}
+                                                                                    />
+
+                                                                                </View>
+                                                                                <View style={{width:"70%"}}>
+                                                                                    <Text style={{ fontSize: 26, fontWeight: "bold", paddingLeft: 10, color: "white", flexDirection: "column" }}>{a.name}</Text>
+                                                                                    <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>PKR {a.price}</Text>
+
+
+                                                                                </View>
+                                                                                <View style={{ justifyContent:"center",width:"10%" }}>
+
+
+                                                                                    <Pressable
+                                                                                    style={{alignSelf:"flex-end"}}
+                                                                                    
+                                                                                    onPress={() => {
+                                                                                        
+                                                                                        setCheckCartData(false)
+                                                                                        setTotalPrice(totalPrice + a.price)
+                                                                                        setCartStatus(cartstatus + 1);
+                                                                                        let cartDataCopy = [...cartData];
+                                                                                        let forjson = { name: a.name, price: a.price, discription: a.discription }
+                                                                                        cartDataCopy.push(forjson);
+                                                                                        setCartData(cartDataCopy);
+                                                                                        setCartData(cartDataCopy);
+                                                                                        // console.log(cartData)
+                                                                                    }} >
+                                                                                        <Image source={require('../media/res/drawable-xxxhdpi/baseline_add_circle_outline_black_48.png')} style={{ width: 30, height: 30 }} />
+                                                                                    </Pressable>
+                                                                                </View>
+
+
+                                                                            </View>
+                                                                        </Pressable>
+                                                                    );
+                                                                })
+                                                            }
+                                                        </ScrollView>
                                                     }
-                                                    // ... You can check the source to find the other keys.
-                                                }}
-                                                onDateChange={(date) => { setDate(date) }}
-                                            />
-                                            <Input placeholder="Easypaisa username" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(ename) => setEasypaisaName(ename)} />
-                                            <Input placeholder="phone number" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(phonen) => setphoneNumber(phonen)} />
-                                            <Input placeholder='amount' keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(am) => setAmount(am)} />
+                                                </Card>
+                                            </ScrollView>
+                                            <Pressable onPress={toggleOverlay2}>
+                                                <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
+                                                    <Badge value={cartstatus} status="primary" />
+                                                    <Badge value={<Text style={styles.textbtnprop}>CHECK MENU</Text>} badgeStyle={{ backgroundColor: "transparent", borderWidth: 0 }} />
 
-                                            {/* <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Select Date" containerStyle={styles.input}  placeholderTextColor="black" onChangeText={(ps) => setPass(ps)}  /> */}
-                                            <Pressable style={styles.btn} onPress={() => {
-                                                console.log("request sent");
-                                                console.log(userData._id, tempid, cartData, noOfPerson, date, textArea, easypaisaName, phoneNumber, amount);
-                                                jsonserver.post('/reservation', {
+                                                </View>
+                                            </Pressable>
 
-                                                    userId: userData._id,
-                                                    resturantId: tempid,
-                                                    noOfPersons: noOfPerson,
-                                                    dateOfReservation: date,
-                                                    order: cartData,
-                                                    userEasyPaisaName: easypaisaName,
-                                                    userEasyPaisaPhoneNo: phoneNumber,
-                                                    paymentBeforeReservation: amount,
-                                                    totalBill: totalPrice
+                                            <Overlay isVisible={visible2} onBackdropPress={toggleOverlay2} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
+                                                <View style={styles.formcontainer}>
+                                                    <StatusBar translucent backgroundColor="#feb334" />
+                                                    <Pressable onPress={toggleOverlay2}>
+                                                        <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
+                                                    </Pressable>
+                                                    <Text style={styles.labeltext}>YOUR ORDER</Text>
 
-
-                                                })
-                                                    .then((response) => {
-                                                        console.log("this is response", response.data);
-                                                        alert("CONFIRMED")
-
-                                                    })
-                                                    .catch(function (error) {
-                                                        console.log(error.message);
-
-                                                    })
-                                            }} ><Text style={styles.textbtnprop} >{textreservation}</Text></Pressable>
-                                            <Text></Text>
-
-                                        </View>
-                                    </Overlay>
+                                                    {
+                                                        cartData.map((c) => {
+                                                            return (
+                                                                <ScrollView>
+                                                                    <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
+                                                                        <Text style={{ fontSize: 20, }}>{c.name}            {c.price}
 
 
+                                                                            <Pressable onPress={() => {
 
-                                </Overlay>
-                            </View>
-                        </Card>
+                                                                                // console.log("orignal is : ", cartData)
+                                                                                setCheckCartData(false)
+                                                                                setTotalPrice(totalPrice - c.price)
+                                                                                setCartStatus(cartstatus - 1);
+                                                                                let arr = [];
+                                                                                arr = cartData
 
-                    </Pressable>}
-            />
+                                                                                function checkAdult(cartdata) {
+                                                                                    return cartdata.name === c.name;
+                                                                                }
+                                                                                let ind = cartData.findIndex(checkAdult)
+                                                                                console.log("before ", arr);
+                                                                                console.log(ind);
+                                                                                arr.splice(ind, 1)
+                                                                                console.log("after ", arr);
+
+                                                                                setCartData(arr)
+
+
+
+                                                                            }}>
+                                                                                <Ionicons name="trash-outline" size={30} color="black" style={{ marginLeft: 20 }} />
+                                                                            </Pressable>
+
+                                                                        </Text>
+
+
+                                                                    </View>
+                                                                </ScrollView>
+                                                            )
+                                                        })
+
+                                                    }
+                                                    {checkCartData ?
+                                                        <View style={{ width: Dimensions.get("window").width, backgroundColor: "white", marginBottom: 25, height: 70, justifyContent: "center" }}>
+                                                            <Text style={{ marginLeft: 20, fontSize: 20 }}>You have no order</Text>
+
+                                                        </View> :
+                                                        <Text></Text>
+
+                                                    }
+                                                    <Text style={{ fontSize: 20 }}>Total : {totalPrice}</Text>
+
+
+
+
+                                                </View>
+                                            </Overlay>
+                                            <Pressable onPress={toggleOverlay1}>
+                                                <View style={{ backgroundColor: "#feb334", height: 50, marginTop: 5, borderRadius: 15, alignContent: "center", alignItems: "center", justifyContent: "center" }}>
+
+                                                    <Text style={styles.textbtnprop}>
+                                                        RESERVE
+                                            </Text>
+                                                </View>
+                                            </Pressable>
+
+                                            <Overlay isVisible={visible1} onBackdropPress={toggleOverlay1} overlayStyle={{ borderRadius: 25 }} backdropStyle={{}}>
+                                                <View style={styles.formcontainer}>
+                                                    <StatusBar translucent backgroundColor="#feb334" />
+                                                    <Pressable onPress={toggleOverlay1}>
+                                                        <Ionicons name="close-outline" size={40} style={{ alignItems: "flex-end" }} />
+                                                    </Pressable>
+                                                    <Text style={styles.labeltext}>DETAILS</Text>
+                                                    {/* <Text style={{ color: "red" }}>{errorUp}</Text> noofpersons,date,time,comments */}
+
+                                                    <Input placeholder="Number of Persons" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(noperson) => setNoOfPerson(noperson)} />
+                                                    <DatePicker
+                                                        style={{
+                                                            height: 50,
+                                                            width: 200,
+
+                                                            borderRadius: 15,
+                                                            paddingLeft: 15,
+                                                            fontSize: 16,
+                                                            marginTop: 15,
+                                                            color: "black"
+                                                        }}
+                                                        date={date}
+                                                        mode="date"
+                                                        placeholder="select date"
+                                                        format="YYYY-MM-DD"
+                                                        minDate="2020-11-10"
+                                                        maxDate="2020-12-31"
+                                                        confirmBtnText="Confirm"
+                                                        cancelBtnText="Cancel"
+                                                        customStyles={{
+                                                            dateIcon: {
+                                                                position: 'absolute',
+                                                                left: 0,
+                                                                top: 4,
+                                                                marginLeft: 0
+                                                            },
+                                                            dateInput: {
+                                                                marginLeft: 36
+                                                            }
+                                                            // ... You can check the source to find the other keys.
+                                                        }}
+                                                        onDateChange={(date) => { setDate(date) }}
+                                                    />
+                                                    <Input placeholder="Easypaisa username" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(ename) => setEasypaisaName(ename)} />
+                                                    <Input placeholder="phone number" keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(phonen) => setphoneNumber(phonen)} />
+                                                    <Input placeholder='amount' keyboardType="number-pad" leftIcon={{ type: 'font-awesome', name: 'users' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(am) => setAmount(am)} />
+
+                                                    {/* <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Select Date" containerStyle={styles.input}  placeholderTextColor="black" onChangeText={(ps) => setPass(ps)}  /> */}
+                                                    <Pressable style={styles.btn} onPress={() => {
+                                                        console.log("request sent");
+                                                        console.log(userData._id, tempid, cartData, noOfPerson, date, textArea, easypaisaName, phoneNumber, amount);
+                                                        jsonserver.post('/reservation', {
+
+                                                            userId: userData._id,
+                                                            resturantId: tempid,
+                                                            noOfPersons: noOfPerson,
+                                                            dateOfReservation: date,
+                                                            order: cartData,
+                                                            userEasyPaisaName: easypaisaName,
+                                                            userEasyPaisaPhoneNo: phoneNumber,
+                                                            paymentBeforeReservation: amount,
+                                                            totalBill: totalPrice
+
+
+                                                        })
+                                                            .then((response) => {
+                                                                console.log("this is response", response.data);
+                                                                alert("CONFIRMED")
+
+                                                            })
+                                                            .catch(function (error) {
+                                                                console.log(error.message);
+
+                                                            })
+                                                    }} ><Text style={styles.textbtnprop} >{textreservation}</Text></Pressable>
+                                                    <Text></Text>
+
+                                                </View>
+                                            </Overlay>
+
+
+
+                                        </Overlay>
+                                    </View>
+                                </Card>
+
+                            </Pressable>}
+                    />
+
+                </ScrollView>
+            }
             <Text></Text>
 
-        </View>
+        </ScrollView>
     )
 }
 

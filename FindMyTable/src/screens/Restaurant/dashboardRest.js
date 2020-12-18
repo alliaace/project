@@ -4,14 +4,14 @@ import { NavigationContainer, CommonActions } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DashBoardScreen from './dashboardgetterrest'
-import MenuScreen from './menu'
+import MainScreen from './dashbaordmain'
 
 
 const Tab = createBottomTabNavigator();
 
 
 
-export default Choose = ({ route, navigation }) => {
+export default Choose = ({ route }) => {
 
   const { datagiven } = route.params;
   // console.log("recieveed data is ",datagiven)
@@ -34,7 +34,7 @@ export default Choose = ({ route, navigation }) => {
             if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           
-          } else if (route.name === 'Menu') {
+          } else if (route.name === 'Home') {
             iconName = focused ? 'grid' : 'grid-outline';
           }
 
@@ -46,7 +46,7 @@ export default Choose = ({ route, navigation }) => {
         inactiveTintColor: 'gray',
       }}
     >
-      <Tab.Screen name="Menu" component={MenuScreen} initialParams={{ data: datagiven }} />
+      <Tab.Screen name="Home" component={MainScreen} initialParams={{ data: datagiven }} />
       <Tab.Screen name="Profile" component={DashBoardScreen}
         initialParams={{ data: datagiven }}
 

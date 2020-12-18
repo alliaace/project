@@ -16,8 +16,9 @@ const RestSignupRender = ({ navigation }) => {
 
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
-    const [phone, setPhone] = useState("")
+    const [phone, setPhone] = useState(0)
     const [pass, setPass] = useState("")
+    const [cpass, setcPass] = useState("")
     const [errorUp, setErrorUp] = useState("")
     const [DineChecked, setDineChecked] = useState(false)
     const [DeliveryChecked, setDeliveryChecked] = useState(false)
@@ -26,6 +27,8 @@ const RestSignupRender = ({ navigation }) => {
     const [typeRest, setTypeRest] = useState("")
     const [averagePrice, setAveragePrice] = useState(100)
     const [location, setLocation] = useState("")
+    const [easyPaisaName, setEasyPaisaName] = useState("")
+    const [easyPaisaNumber, setEasyPaisaNumber] = useState(0)
 
 
     const dataRadio = [
@@ -40,14 +43,18 @@ const RestSignupRender = ({ navigation }) => {
 
     const processRestSignUp = () => {
         let check = true;
-        if (name == "" || email == "" || phone == "" || pass == "" || location == "" || typeRest == "" || averagePrice == ""  || services == []) {
+        if (name == "" || email == "" || phone == 0 || pass == "" || location == "" || typeRest == "" || averagePrice == "" || services == [] || easyPaisaName == "" || easyPaisaNumber == 0) {
             setErrorUp("All field are required")
             check = false
             console.log(errorUp)
         }
+        if (pass != cpass) {
+            check = false
+            setErrorUp("Password did'nt match")
+        }
         if (check) {
 
-            console.log(name, phone, email, pass, location, services, typeRest, averagePrice);
+            console.log(name, phone, email, pass, location, services, typeRest, averagePrice,easyPaisaName,easyPaisaNumber);
             jsonserver.post('/resturant/signup', {
                 name: name,
                 phone: phone,
@@ -57,18 +64,19 @@ const RestSignupRender = ({ navigation }) => {
                 services: services,
                 typeOfResturant: typeRest,
                 averagePriceInMenu: averagePrice,
-                
+                easyPaisaName:easyPaisaName,
+                easyPaisaPhoneNo:easyPaisaNumber
+
             })
                 .then((response) => {
-                    console.log(response);
+                    // console.log(response);
                     navigation.navigate('DasboardRest',
                         {
-                            emailgiven: email,
-                            namegiven: name
+                            datagiven: response.data
                         })
                 })
                 .catch(function (error) {
-                    console.log("eror is ; ", error);
+                    console.log( error);
                     setErrorUp(error.message)
 
                 })
@@ -91,9 +99,10 @@ const RestSignupRender = ({ navigation }) => {
                     <Text style={{ color: "red" }}>{errorUp}</Text>
                     <Input leftIcon={{ type: 'font-awesome', name: 'user' }} placeholder="Enter Your Name" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(text) => setName(text)} />
                     <Input leftIcon={{ type: 'font-awesome', name: 'envelope' }} placeholder="Enter Your Email" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(em) => setEmail(em)} />
-                    <Input leftIcon={{ type: 'font-awesome', name: 'phone' }} placeholder="Enter Your Phone" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(ph) => setPhone(ph)} />
+                    <Input leftIcon={{ type: 'font-awesome', name: 'phone' }} keyboardType="number-pad" placeholder="Enter Your Phone" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(ph) => setPhone(ph)} />
                     <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Enter Your Password" containerStyle={styles.input} secureTextEntry placeholderTextColor="black" onChangeText={(ps) => setPass(ps)} />
-                    <Input leftIcon={{ type: 'font-awesome', name: 'location-arrow' }} placeholder="Enter Your Location" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(lo) => setLocation(lo)} />
+                    <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Confirm Your Password" containerStyle={styles.input} secureTextEntry placeholderTextColor="black" onChangeText={(pcs) => setcPass(pcs)} />
+                    <Input leftIcon={{ type: 'Ionicons', name: 'home' }} placeholder="Enter Your Address" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(lo) => setLocation(lo)} />
                     <View style={{ width: "100%", alignItems: "flex-start", justifyContent: "flex-start", alignContent: "flex-start" }}>
                         <Text style={{ fontSize: 24, marginTop: 15, fontWeight: "bold", marginLeft: "14%" }}>SERVICES</Text>
                     </View>
@@ -120,7 +129,7 @@ const RestSignupRender = ({ navigation }) => {
                             }}
                             containerStyle={{ backgroundColor: "transparent", borderWidth: 0, width: "30%" }}
                         />
-                        <CheckBox
+                        {/* <CheckBox
                             title='TakeAway'
                             checked={TakeChecked}
                             onPress={() => {
@@ -142,7 +151,7 @@ const RestSignupRender = ({ navigation }) => {
                                 }
                             }}
                             containerStyle={{ backgroundColor: "transparent", borderWidth: 0, width: "32%", marginLeft: -20 }}
-                        />
+                        /> */}
                         <CheckBox
                             title='Delivery'
                             checked={DeliveryChecked}
@@ -205,6 +214,8 @@ const RestSignupRender = ({ navigation }) => {
                         <Picker.Item label="3000" value={3000} />
 
                     </Picker>
+                    <Input leftIcon={{ type: 'font-awesome', name: 'user' }} placeholder="Enter EasyPaisa Name" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(ename) => setEasyPaisaName(ename)} />
+                    <Input leftIcon={{ type: 'font-awesome', name: 'phone' }} placeholder="Enter EasyPaisa Phone" keyboardType="number-pad" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(ephone) => setEasyPaisaNumber(ephone)} />
 
 
                     <Pressable style={styles.btn} onPress={processRestSignUp}><Text style={styles.textbtnprop}>REGISTER</Text></Pressable>
@@ -213,7 +224,7 @@ const RestSignupRender = ({ navigation }) => {
                 </View>
                 <View style={{ flexDirection: "row" }}>
                     <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpUser")}><Text style={styles.black}>User?</Text></Pressable>
-                    <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpRider")}><Text style={styles.black}>Rider?</Text></Pressable>
+                    {/* <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpRider")}><Text style={styles.black}>Rider?</Text></Pressable> */}
 
                 </View>
 

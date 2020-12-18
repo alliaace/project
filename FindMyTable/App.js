@@ -44,7 +44,7 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="LoginUser">
+      <Stack.Navigator initialRouteName="SignUpRest">
         <Stack.Screen name="LoginUser" component={LoginScreen}
           options={{
             headerShown: false
@@ -93,7 +93,18 @@ function App() {
         />
         <Stack.Screen name="DasboardRest" component={DashboardRest}
           options={{
-            headerShown: false
+            headerLeft: () => (
+              <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "center" }}>
+                <Image source={require("./src/media/logo-removebg-preview.png")} style={{ width: 50, height: 50, marginLeft: 15 }} />
+                {/* <Input placeholder="Kya Chahiye?"  inputContainerStyle={{borderColor:"white",marginLeft:50}} leftIcon={<Ionicons name="search" size={30} color="white" style={{marginLeft:0}}/>} /> */}
+              </View>
+            ),
+            headerTintColor: "white",
+            title: "Find My Table",
+            headerStyle: {
+              backgroundColor: "#feb334",
+
+            }
           }}
         />
       </Stack.Navigator>

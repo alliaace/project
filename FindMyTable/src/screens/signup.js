@@ -96,7 +96,7 @@ const SignupRender = ({ navigation }) => {
                 </View>
                 <View style={{ flexDirection: "row" }}>
                     <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpRest")}><Text style={styles.black}>Restaurant?</Text></Pressable>
-                    <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpRider")}><Text style={styles.black}>Rider?</Text></Pressable>
+                    {/* <Pressable style={styles.opt} onPress={() => navigation.navigate("SignUpRider")}><Text style={styles.black}>Rider?</Text></Pressable> */}
                 </View>
                 <Text></Text><Text></Text>
 
