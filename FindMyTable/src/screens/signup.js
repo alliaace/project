@@ -40,7 +40,7 @@ const SignupRender = ({ navigation }) => {
 
             if (pass === confirmPass) {
                 setBtnValue("Wait...")
-                console.log("working signup");
+                // console.log("working signup");
                 jsonserver.post('/user/SignUp', {
                     name: name,
                     phone: phone,
@@ -54,7 +54,15 @@ const SignupRender = ({ navigation }) => {
                     })
                     .catch(function (error) {
                         console.log(error);
-                        setErrorUp(error.message)
+                        if(error.message=="Request failed with status code 400"){
+                            setErrorUp("Something is incorrect check again")
+                        }
+                        else if(error.message=="Network Error"){
+                            setErrorUp("Internet Connection lost")
+                        }
+                        else{
+                            setErrorUp("Something went wrong try again later")
+                        }
                         setBtnValue("SIGNUP")
                     })
             }else{

@@ -12,6 +12,7 @@ import DashBoardUser from '../screens/user/dashboardUser'
 import DatePicker from 'react-native-datepicker'
 import { ActivityIndicator } from 'react-native';
 import { RefreshControl } from 'react-native';
+import Modal from 'react-native-modal';
 
 
 const Tab = createBottomTabNavigator();
@@ -41,7 +42,6 @@ const DashBoardGetter = (props) => {
     const [noOfPerson, setNoOfPerson] = useState(0)
     const [textreservation, setTextReservation] = useState("CONFIRM RESERVATION")
     const [totalPrice, setTotalPrice] = useState(0)
-    const [halfPrice, setHalfPrice] = useState(totalPrice / 2)
     const [checkCartData, setCheckCartData] = useState(true)
     const [easypaisaName, setEasypaisaName] = useState("")
     const [phoneNumber, setphoneNumber] = useState(0)
@@ -51,6 +51,11 @@ const DashBoardGetter = (props) => {
     const [activity2, setActivity2] = useState(true)
     const [refreshing, setRefreshing] = React.useState(false);
     const [popularRest, setPopularRest] = useState([])
+    const [advanceSearch, setAdvanceSearch] = useState(false)
+    const [aLocation, setALocation] = useState("")
+    const [aType, setAType] = useState("")
+    const [aBusget, setABudget] = useState(100)
+    const [aDec, setADec] = useState("")
 
     const wait = (timeout) => {
         return new Promise(resolve => {
@@ -62,7 +67,7 @@ const DashBoardGetter = (props) => {
         setRefreshing(true);
         jsonserver.get('/resturant/popularReservationRseturants')
             .then((response) => {
-                console.log("popular is: ----------->>>", response.data);
+                // console.log("popular is: ----------->>>", response.data);
                 setPopularRest(response.data)
                 // alert("working")
 
@@ -118,7 +123,7 @@ const DashBoardGetter = (props) => {
     const getRestarent = () => {
         jsonserver.get('/resturant/popularReservationRseturants')
             .then((response) => {
-                console.log("popular is: ----------->>>", response.data);
+                // console.log("popular is: ----------->>>", response.data);
                 setPopularRest(response.data)
 
 
@@ -128,7 +133,7 @@ const DashBoardGetter = (props) => {
             })
         jsonserver.get('/resturant')
             .then((response) => {
-                // console.log(response.data);
+                console.log("---------------------------------------------------------------",response.data);
                 setData(response.data)
                 setActivity(false)
 
@@ -189,6 +194,73 @@ const DashBoardGetter = (props) => {
                 }
             } />
 
+
+            <Pressable style={{ width: "100%", flexDirection: "row" }} onPress={() => {
+                setAdvanceSearch(!advanceSearch)
+            }}
+
+            >
+                <Text style={{ color: "white", fontSize: 18, marginLeft: 15, width: "85%" }}>Apply filters</Text>
+                <Ionicons name="filter-outline" size={20} color="white" style={{ alignSelf: "flex-end" }} />
+            </Pressable>
+            <View style={{ flex: 1,marginBottom:15 }}>
+
+
+                <Modal isVisible={advanceSearch}>
+                    <View style={{}}>
+                        <View style={{ alignItems: "center", backgroundColor: "#feb334", borderRadius: 5 }}>
+                            <View style={{ flexDirection: "row", justifyContent: "center" }} >
+                                <Text style={{ color: "white", fontSize: 26, width: "85%" }}>Recomendation</Text>
+                                <Pressable onPress={() => {
+                                    setAdvanceSearch(!advanceSearch)
+                                }}>
+                                    <Ionicons name="close-outline" size={30} style={{}} />
+                                </Pressable>
+                            </View>
+                            <Input placeholder="Location" inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} onChangeText={(al) => setALocation(al)} />} />
+                            <Input placeholder="Type of Resturaunt" inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={(at) => setAType(at)} />
+                            <Input placeholder="Budget (100,500,1000)" inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={(ab) => setABudget(ab)} />
+                            <Input placeholder="what you want to eat?" inputContainerStyle={{ borderColor: "white", marginLeft: 0 }} leftIcon={<Ionicons name="search" size={20} color="white" style={{ marginLeft: 0 }} />} onChangeText={(ad) => setADec(ad)} />
+                            <Pressable style={{ width: "90%", backgroundColor: "white", alignItems: "center", height: 40, justifyContent: "center", borderRadius: 15 }} onPress={() => {
+                                jsonserver.post('/resturant/recomandationSearch', {
+                                    location: aLocation,
+                                    typeOfResturant: aType,
+                                    averagePriceInMenu:aBusget,
+                                    menuname:aDec
+                                })
+                                    .then((response) => {
+                                        console.log(response.data);
+                                        setData(response.data)
+                                        setAdvanceSearch(!advanceSearch)
+                                        
+                                    })
+                                    .catch(function (error) {
+                                        console.log(error);
+                                        
+                                    })
+
+                            }}>
+                                <Text style={{ fontSize: 18, color: "black" }} >Search</Text>
+                            </Pressable>
+                            <Text></Text>
+                        </View>
+
+
+                    </View>
+                </Modal>
+            </View>
+
+
+
+
+
+
+
+
+
+
+
+
             {/* <TextInput placeholder="Search Anything" style={{ borderWidth: 1, borderColor: "white" }} placeholderTextColor="white" /> */}
             {activity ?
                 <ActivityIndicator animating={activity} color="black" /> :
@@ -247,7 +319,7 @@ const DashBoardGetter = (props) => {
                                             </View>
 
                                             <ScrollView>
-                                                <Card style={{ marginBottom: 25, width: Dimensions.get("window").width - 20 }}>
+                                                <Card style={{ marginBottom: 25, width:10 }} >
                                                     <Card.Title>Menu</Card.Title>
                                                     <Card.Divider />
 
@@ -259,6 +331,7 @@ const DashBoardGetter = (props) => {
                                                                         <Pressable onPress={() => alert(a._id)}>
                                                                             <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334" }}>
                                                                                 <Text style={{ fontSize: 26, fontWeight: "bold", paddingLeft: 10, color: "white" }}>{a.name}</Text>
+                                                                                <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>{a.discription}</Text>
                                                                                 <View style={{ flexDirection: "row" }}>
                                                                                     <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>PKR {a.price}.00</Text>
                                                                                     <Pressable onPress={() => {
@@ -469,6 +542,15 @@ const DashBoardGetter = (props) => {
 
 
                     <Text style={{ marginTop: 5, fontSize: 26, color: "white", marginLeft: 15 }} >All Restuarants</Text>
+                    {/* <Text>workdddddding</Text>
+                    <Text style={{fontSize:150,color:"white",width:300,backgroundColor:"red",marginLeft:15}}>
+                        {
+                            data.map((z)=>{
+                                <Text>{z._id}</Text>
+                            })
+                        }
+                    </Text> */}
+
                     <FlatList
 
                         horizontal={false}
@@ -479,7 +561,7 @@ const DashBoardGetter = (props) => {
                         renderItem={({ item }) =>
                             <Pressable onPress={() => {
                                 setTempId(item._id)
-                                console.log("tempid again is: ", tempid);
+                                // console.log("tempid again is: ", tempid);
                                 toggleOverlay(item._id);
                             }
 
@@ -528,42 +610,35 @@ const DashBoardGetter = (props) => {
                                                                 menu.map((a) => {
                                                                     return (
                                                                         <Pressable onPress={() => alert(a._id)}>
-                                                                            <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334", flexDirection: "row",height:70 }}>
+                                                                            <View style={{ width: Dimensions.get('window').width - 100, borderRadius: 10, borderWidth: 1, borderColor: "black", marginBottom: 5, backgroundColor: "#feb334", flexDirection: "row" }}>
                                                                                 <View>
-                                                                                    <Avatar
-                                                                                        size="medium"
-                                                                                        rounded
-                                                                                        source={{
-                                                                                            uri:
-                                                                                                'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-                                                                                        }}
-                                                                                    />
+
 
                                                                                 </View>
-                                                                                <View style={{width:"70%"}}>
+                                                                                <View style={{ width: "85%" }}>
                                                                                     <Text style={{ fontSize: 26, fontWeight: "bold", paddingLeft: 10, color: "white", flexDirection: "column" }}>{a.name}</Text>
+                                                                                    <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>{a.discription}</Text>
                                                                                     <Text style={{ fontSize: 18, fontWeight: "bold", fontStyle: "italic", paddingLeft: 10, color: "#e1e1e1" }}>PKR {a.price}</Text>
 
-
                                                                                 </View>
-                                                                                <View style={{ justifyContent:"center",width:"10%" }}>
+                                                                                <View style={{ justifyContent: "center", width: "10%" }}>
 
 
                                                                                     <Pressable
-                                                                                    style={{alignSelf:"flex-end"}}
-                                                                                    
-                                                                                    onPress={() => {
-                                                                                        
-                                                                                        setCheckCartData(false)
-                                                                                        setTotalPrice(totalPrice + a.price)
-                                                                                        setCartStatus(cartstatus + 1);
-                                                                                        let cartDataCopy = [...cartData];
-                                                                                        let forjson = { name: a.name, price: a.price, discription: a.discription }
-                                                                                        cartDataCopy.push(forjson);
-                                                                                        setCartData(cartDataCopy);
-                                                                                        setCartData(cartDataCopy);
-                                                                                        // console.log(cartData)
-                                                                                    }} >
+                                                                                        style={{ alignSelf: "flex-end" }}
+
+                                                                                        onPress={() => {
+
+                                                                                            setCheckCartData(false)
+                                                                                            setTotalPrice(totalPrice + a.price)
+                                                                                            setCartStatus(cartstatus + 1);
+                                                                                            let cartDataCopy = [...cartData];
+                                                                                            let forjson = { name: a.name, price: a.price, discription: a.discription }
+                                                                                            cartDataCopy.push(forjson);
+                                                                                            setCartData(cartDataCopy);
+                                                                                            setCartData(cartDataCopy);
+                                                                                            // console.log(cartData)
+                                                                                        }} >
                                                                                         <Image source={require('../media/res/drawable-xxxhdpi/baseline_add_circle_outline_black_48.png')} style={{ width: 30, height: 30 }} />
                                                                                     </Pressable>
                                                                                 </View>

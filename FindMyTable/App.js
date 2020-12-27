@@ -29,13 +29,15 @@ const Stack = createStackNavigator();
 function App() {
 
   React.useEffect(() => {
-    console.log("working");
+    // console.log("working");
 
     <View style={{ flex: 1, backgroundColor: "red", alignItems: "center", justifyContent: "center" }}>
       <Text style={{ fontSize: 100 }}>hello from splash</Text>
     </View>
 
-    SplashScreen.hide();
+    // SplashScreen.show()
+
+    SplashScreen.hide()
   })
 
 
@@ -44,7 +46,7 @@ function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignUpRest">
+      <Stack.Navigator initialRouteName="LoginUser">
         <Stack.Screen name="LoginUser" component={LoginScreen}
           options={{
             headerShown: false

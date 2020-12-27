@@ -18,7 +18,7 @@ const LoginRender = ({ navigation }) => {
     const [errorUp, setErrorUp] = useState("")
     const [btnValue, setBtnValue] = useState("LOGIN")
 
-     
+
     const processLogIn = () => {
 
         let check = true;
@@ -48,7 +48,16 @@ const LoginRender = ({ navigation }) => {
                 })
                 .catch(function (error) {
                     console.log(error);
-                    setErrorUp((error.message))
+                    if (error.message == "Request failed with status code 400") {
+                        setErrorUp("Email or Password is incorrect")
+                    } 
+                    else if (error.message == "Network Error") {
+                        setErrorUp("Internet Connection lost")
+                    }
+                    else {
+                        setErrorUp("Something went wrong try again later")
+                    }
+
                     setBtnValue("LOGIN")
                 })
         }
@@ -70,9 +79,9 @@ const LoginRender = ({ navigation }) => {
                     <StatusBar translucent backgroundColor="#feb334" hidden />
                     <Text style={styles.labeltext}>USER</Text>
                     <Text style={{ color: "red" }}>{errorUp}</Text>
-                    
 
-                    <Input placeholder="Enter Your Email" leftIcon={{ type: 'font-awesome', name: 'envelope' }}  placeholderTextColor="black" containerStyle={styles.input} onChangeText={(em) => setEmail(em)} require={true} />
+
+                    <Input placeholder="Enter Your Email" leftIcon={{ type: 'font-awesome', name: 'envelope' }} placeholderTextColor="black" containerStyle={styles.input} onChangeText={(em) => setEmail(em)} require={true} />
 
                     <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Enter Your Password" containerStyle={styles.input} secureTextEntry placeholderTextColor="black" onChangeText={(ps) => setPass(ps)} require={true} />
                     <Pressable style={styles.btn} onPress={processLogIn}  ><Text style={styles.textbtnprop} >{btnValue}</Text></Pressable>

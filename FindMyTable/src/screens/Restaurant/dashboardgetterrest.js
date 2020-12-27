@@ -6,6 +6,7 @@ import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import jsonserver from '../../server/jsonServer'
 import sty from '../../styles/style'
+import Modal from 'react-native-modal';
 
 
 
@@ -34,14 +35,22 @@ function Profile({ route, navigation }) {
     const [showPastDeliveries, setShowPastDeliveries] = React.useState(false)
     const [review, setReview] = React.useState("")
     const [showReview, setShowReview] = React.useState(false)
-    const [showAddMenu, setShowAddMenu] = React.useState(false)
-    const [addMenu, setAddMenu] = React.useState([])
+    const [showMenu, setShowMenu] = React.useState(false)
+    const [addMenu, setAddMenu] = React.useState(false)
+    const [editMenuModal, setEditMenuModal] = React.useState(false)
+    const [selectId, setSelectId] = React.useState("")
+    const [mname, setMName] = React.useState("")
+    const [mPrice, setMPrice] = React.useState("")
+    const [mDis, setMDis] = React.useState("")
+    const [mDec, setMDec] = React.useState("")
+    const [editMenu, setEditMenu] = React.useState(false)
+    const [addCat, setAddCat] = React.useState(false)
 
 
 
 
 
-    console.log(data.phone);
+    // console.log(data);
 
     const changeUpdateProfile = () => {
 
@@ -49,7 +58,13 @@ function Profile({ route, navigation }) {
 
     }
 
+    const ModalShow = (id) => {
+        // alert(id)
+        setSelectId(id)
+        setEditMenuModal(!editMenuModal)
 
+
+    }
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', alignContent: "center" }}>
             <ScrollView style={styles.innercont}>
@@ -68,7 +83,7 @@ function Profile({ route, navigation }) {
                 <Card.Divider />
                 <Pressable style={{ height: 50, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c" }} onPress={changeUpdateProfile}>
                     <Text style={styles.text}>Edit Profile</Text>
-                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 220 }} />
+                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                 </Pressable>
 
                 {showUpdateProfile &&
@@ -106,7 +121,7 @@ function Profile({ route, navigation }) {
 
                                 />
                                 <Pressable style={sty.opt} onPress={() => {
-                                    console.log(userName, userAddress, userPhone);
+                                    // console.log(userName, userAddress, userPhone);
 
                                     jsonserver.put('user/' + data._id, {
                                         name: userName,
@@ -135,24 +150,243 @@ function Profile({ route, navigation }) {
                     </View>
                 }
 
+
+
+
+
+
+
+
+
+                <Card.Divider />
+                <Pressable style={{ height: 50, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c" }} onPress={() => {
+
+                    setShowMenu(!showMenu)
+                }}>
+                    <Text style={styles.text}>Menu</Text>
+                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
+                </Pressable>
+
+
+
+                {showMenu &&
+
+                    <View style={{ marginBottom: 10 }}>
+                        <Card.Divider />
+                        <Pressable style={{ height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", width: "80%" }} onPress={() => {
+
+                            setEditMenu(!editMenu)
+                        }}>
+                            <Text style={styles.text}>Show and edit menu</Text>
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
+                        </Pressable>
+                        {editMenu &&
+                            <Card style={{ marginBottom: 25 }}>
+                                <Card.Title>Menu</Card.Title>
+                                <Card.Divider />
+                                <ScrollView >
+                                    {
+
+                                        data.menu.map((f) => {
+
+                                            return (
+                                                <View>
+                                                    <Text>
+                                                        Name: {f.name}
+                                                    </Text>
+                                                    <Text>
+                                                        Price: {f.price}
+                                                    </Text>
+                                                    <Text>
+                                                        Discription: {f.discription}
+                                                    </Text>
+                                                    <View style={{ flexDirection: "row" }}>
+                                                        <Text style={{ width: "90%" }}>
+                                                            Catagory: {f.categie}
+                                                        </Text>
+                                                        <Pressable onPress={() => ModalShow(f._id)}>
+                                                            <Ionicons name="create-outline" size={25} />
+                                                        </Pressable>
+
+                                                    </View>
+
+
+                                                    <Card.Divider />
+
+                                                </View>
+
+                                            )
+
+                                        })
+                                    }
+                                    <Modal isVisible={editMenuModal} backdropOpacity={0.7}>
+
+                                        <View style={{ backgroundColor: "#feb334", alignItems: "center", borderRadius: 15 }}>
+                                            <View style={{ flexDirection: "row", justifyContent: "center" }} >
+                                                <Text style={{ color: "white", fontSize: 26, width: "85%" }}>Edit Menu</Text>
+                                                <Pressable onPress={() => {
+                                                    setEditMenuModal(!editMenuModal)
+                                                }}>
+                                                    <Ionicons name="close-outline" size={30} style={{}} />
+                                                </Pressable>
+                                            </View>
+                                            <Input placeholder="Name" onChangeText={(mn) => { setMName(mn) }} />
+                                            <Input placeholder="Price" keyboardType="number-pad" onChangeText={(mp) => { setMPrice(mp) }} />
+                                            <Input placeholder="Discription" onChangeText={(md) => { setMDis(md) }} />
+                                            <Input placeholder="Catagory" onChangeText={(mc) => { setMDec(mc) }} />
+                                            <Pressable style={{ width: "90%", backgroundColor: "white", alignItems: "center", height: 40, justifyContent: "center", borderRadius: 15 }} onPress={() => {
+                                                jsonserver.put('/resturant/menuupdate/' + selectId, {
+                                                    name: mname,
+                                                    discription: mDis,
+                                                    price: mPrice,
+                                                    menucategie: mDec
+                                                })
+                                                    .then((response) => {
+                                                        // console.log(response.data);
+                                                        alert("Sucessfully updated")
+                                                        setEditMenuModal(!editMenuModal)
+
+
+                                                    })
+                                                    .catch(function (error) {
+                                                        console.log(error);
+
+                                                    })
+
+                                            }}>
+                                                <Text style={{ fontSize: 18, color: "black" }} >Update</Text>
+                                            </Pressable>
+                                            <Text></Text>
+                                        </View>
+
+                                    </Modal>
+
+                                </ScrollView>
+                            </Card>
+
+
+
+                        }
+
+
+
+                        <Card.Divider />
+                        <Pressable style={{ height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", width: "80%" }} onPress={() => {
+
+                            setAddMenu(!addMenu)
+                        }}>
+                            <Text style={styles.text}>Add menu</Text>
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
+                        </Pressable>
+                        {addMenu &&
+                            <Card style={{ marginBottom: 25 }}>
+                                <Card.Title>Add Menu</Card.Title>
+                                <Card.Divider />
+                                <ScrollView >
+                                    <Input placeholder="Name" onChangeText={(mn) => { setMName(mn) }} />
+                                    <Input placeholder="Price" keyboardType="number-pad" onChangeText={(mp) => { setMPrice(mp) }} />
+                                    <Input placeholder="Discription" onChangeText={(md) => { setMDis(md) }} />
+                                    <Input placeholder="Catagory" onChangeText={(mc) => { setMDec(mc) }} />
+                                    <Pressable style={{ width: "95%", backgroundColor: "#feb334", alignItems: "center", height: 40, justifyContent: "center", borderRadius: 15 }} onPress={() => {
+                                        jsonserver.post('/resturant/addMenu/' + data._id, {
+                                            name: mname,
+                                            discription: mDis,
+                                            price: mPrice,
+                                            menucategie: mDec
+                                        })
+                                            .then((response) => {
+                                                // console.log(response.data);
+                                                alert("Sucessfully Added")
+                                                // setEditMenuModal(!editMenuModal)
+
+
+                                            })
+                                            .catch(function (error) {
+                                                console.log(error);
+
+                                            })
+
+                                    }}>
+                                        <Text style={{ fontSize: 18, color: "black" }} >Add</Text>
+                                    </Pressable>
+
+                                </ScrollView>
+                            </Card>
+
+
+
+                        }
+
+
+
+                        <Card.Divider />
+                        <Pressable style={{ height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", width: "80%" }} onPress={() => {
+
+                            setAddCat(!addCat)
+                        }}>
+                            <Text style={styles.text}>Add Catagory</Text>
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
+                        </Pressable>
+                        {addCat &&
+                            <Card style={{ marginBottom: 25 }}>
+                                <Card.Title>Add Catagory</Card.Title>
+                                <Card.Divider />
+                                <ScrollView >
+                                    <Input placeholder="Catagory" onChangeText={(mn) => { setMName(mn) }} />
+                                    
+                                    <Pressable style={{ width: "95%", backgroundColor: "#feb334", alignItems: "center", height: 40, justifyContent: "center", borderRadius: 15 }} onPress={() => {
+                                        jsonserver.post('/resturant/addMenucategies/' + data._id, {
+                                            name: mname,
+                                            
+                                        })
+                                            .then((response) => {
+                                                // console.log(response.data);
+                                                alert("Sucessfully Added")
+                                                // setEditMenuModal(!editMenuModal)
+
+
+                                            })
+                                            .catch(function (error) {
+                                                console.log(error);
+
+                                            })
+
+                                    }}>
+                                        <Text style={{ fontSize: 18, color: "black" }} >Add Catagory</Text>
+                                    </Pressable>
+
+                                </ScrollView>
+                            </Card>
+
+
+
+                        }
+
+
+
+
+
+                    </View>
+                }
+
                 <Card.Divider />
                 <Pressable style={{ height: 50, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c" }} onPress={() => {
 
                     setshowReservation(!showReservation)
                 }}>
                     <Text style={styles.text}>Reservations</Text>
-                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 240 }} />
+                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                 </Pressable>
 
                 {showReservation &&
                     <View style={{ marginBottom: 10 }}>
                         <Pressable style={{ width: "80%", height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", marginTop: 5 }} onPress={() => {
-                            console.log("from pending");
+                            // console.log("from pending");
                             jsonserver.get('/resturant/Reservetion/placed/' + data._id)
                                 .then((response) => {
 
                                     setpending(response.data)
-                                    console.log("pending comming ", response.data);
+                                    // console.log("pending comming ", response.data);
                                 })
                                 .then((error) => {
                                     console.log(error);
@@ -160,7 +394,7 @@ function Profile({ route, navigation }) {
                             setshowPendings(!showPendings)
                         }}>
                             <Text style={styles.text}>Pending</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 250 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showPendings &&
 
@@ -210,7 +444,7 @@ function Profile({ route, navigation }) {
                                                     </View>
                                                     <View style={{ flexDirection: "row" }}>
                                                         <Pressable style={sty.opt} onPress={() => {
-                                                            console.log(userName, userAddress, userPhone);
+                                                            // console.log(userName, userAddress, userPhone);
 
                                                             jsonserver.get('/resturant/confirmReservation/' + a._id)
                                                                 .then((response) => {
@@ -225,7 +459,7 @@ function Profile({ route, navigation }) {
                                                         }} ><Text style={sty.textbtnprop} >Confirm</Text></Pressable>
 
                                                         <Pressable style={sty.opt} onPress={() => {
-                                                            console.log(userName, userAddress, userPhone);
+                                                            // console.log(userName, userAddress, userPhone);
 
                                                             jsonserver.put('resturant/rejectReservation/' + a._id, {
                                                                 rejectionReason: "unknown"
@@ -267,7 +501,7 @@ function Profile({ route, navigation }) {
                                 .then((response) => {
 
                                     setConfirmed(response.data)
-                                    console.log("confirmed comming ", response.data);
+                                    // console.log("confirmed comming ", response.data);
                                     // alert("working")
 
 
@@ -279,7 +513,7 @@ function Profile({ route, navigation }) {
 
                         }}>
                             <Text style={styles.text}>Confirmed</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 275 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showConfimedReservations &&
 
@@ -327,7 +561,7 @@ function Profile({ route, navigation }) {
                                                         }
                                                     </View>
                                                     <Pressable style={sty.opt} onPress={() => {
-                                                        console.log(userName, userAddress, userPhone);
+                                                        // console.log(userName, userAddress, userPhone);
 
                                                         jsonserver.get('resturant/completeReservation/' + a._id, {
                                                             rejectionReason: "unknown"
@@ -370,7 +604,7 @@ function Profile({ route, navigation }) {
                                 .then((response) => {
 
                                     setReservationHistory(response.data)
-                                    console.log("confirmed comming ", response.data);
+                                    // console.log("confirmed comming ", response.data);
                                     // alert("working")
 
 
@@ -382,7 +616,7 @@ function Profile({ route, navigation }) {
 
                         }}>
                             <Text style={styles.text}>Past Reservations</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 350 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showPastReservations &&
 
@@ -494,18 +728,18 @@ function Profile({ route, navigation }) {
                     setShowDeliveries(!showDeliveries)
                 }}>
                     <Text style={styles.text}>Deliveries</Text>
-                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 212 }} />
+                    <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                 </Pressable>
 
                 {showDeliveries &&
                     <View style={{ marginBottom: 10 }}>
                         <Pressable style={{ width: "80%", height: 30, flexDirection: "row", alignItems: "center", backgroundColor: "#c18a2c", marginTop: 5 }} onPress={() => {
-                            console.log("from pending");
+                            // console.log("from pending");
                             jsonserver.get('resturant/Delivery/placed/' + data._id)
                                 .then((response) => {
 
                                     setPendingDeliveries(response.data)
-                                    console.log("pending comming ", response.data);
+                                    // console.log("pending comming ", response.data);
                                 })
                                 .then((error) => {
                                     console.log(error);
@@ -513,7 +747,7 @@ function Profile({ route, navigation }) {
                             setshowPendingDeliveries(!showPendingDeliveries)
                         }}>
                             <Text style={styles.text}>Pending</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 250 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showPendingDeliveries &&
 
@@ -560,7 +794,7 @@ function Profile({ route, navigation }) {
                                                     </View>
                                                     <View style={{ flexDirection: "row" }}>
                                                         <Pressable style={sty.opt} onPress={() => {
-                                                            console.log(userName, userAddress, userPhone);
+                                                            // console.log(userName, userAddress, userPhone);
 
                                                             jsonserver.get('resturant/confirmDelivery/' + a._id)
                                                                 .then((response) => {
@@ -575,7 +809,7 @@ function Profile({ route, navigation }) {
                                                         }} ><Text style={sty.textbtnprop} >Confirm</Text></Pressable>
 
                                                         <Pressable style={sty.opt} onPress={() => {
-                                                            console.log(userName, userAddress, userPhone);
+                                                            // console.log(userName, userAddress, userPhone);
 
                                                             jsonserver.put('resturant/rejectDelivery/' + a._id, {
                                                                 rejectionReason: "unknown"
@@ -618,7 +852,7 @@ function Profile({ route, navigation }) {
                                 .then((response) => {
 
                                     setConfirmedDeliveries(response.data)
-                                    console.log("confirmed comming ", response.data);
+                                    // console.log("confirmed comming ", response.data);
                                     // alert("working")
 
 
@@ -630,7 +864,7 @@ function Profile({ route, navigation }) {
 
                         }}>
                             <Text style={styles.text}>Confirmed</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 275 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showConfimedDeliveries &&
 
@@ -679,7 +913,7 @@ function Profile({ route, navigation }) {
                                                         }
                                                     </View>
                                                     <Pressable style={sty.opt} onPress={() => {
-                                                        console.log(userName, userAddress, userPhone);
+                                                        // console.log(userName, userAddress, userPhone);
 
                                                         jsonserver.get('resturant/completedDelivery/' + a._id, {
                                                             rejectionReason: "unknown"
@@ -721,7 +955,7 @@ function Profile({ route, navigation }) {
                                 .then((response) => {
 
                                     setDeliveriesHistory(response.data)
-                                    console.log("confirmed deliviereis ", response.data);
+                                    // console.log("confirmed deliviereis ", response.data);
                                     // alert("working")
 
 
@@ -733,7 +967,7 @@ function Profile({ route, navigation }) {
 
                         }}>
                             <Text style={styles.text}>Past Deliveries</Text>
-                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 317 }} />
+                            <Ionicons name="chevron-down-outline" size={20} color="black" style={{}} />
                         </Pressable>
                         {showPastDeliveries &&
 
@@ -757,7 +991,7 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
                                                     </Text>
-                                                    
+
                                                     <Text>
                                                         Address: {a.address}
                                                     </Text>
@@ -777,7 +1011,7 @@ function Profile({ route, navigation }) {
                                                         Delivery Status: {a.deliveryStatus}
                                                     </Text>
 
-                                                    
+
 
                                                     <Card.Divider />
 
@@ -814,7 +1048,7 @@ function Profile({ route, navigation }) {
                     navigation.navigate('LoginRest')
                 }>
                     <Text style={styles.text}>LogOut</Text>
-                    <Ionicons name="log-out-outline" size={20} color="black" style={{ marginLeft: Dimensions.get("window").width - 187 }} />
+                    <Ionicons name="log-out-outline" size={20} color="black" style={{}} />
                 </Pressable>
 
             </ScrollView>
@@ -848,7 +1082,8 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 26,
         color: "white",
-        paddingLeft: 15
+        paddingLeft: 15,
+        width: "90%"
 
     }
 })

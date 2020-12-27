@@ -69,7 +69,7 @@ const DashBoardGetter = (props) => {
     const getRestarent = () => {
         jsonserver.get('/resturant/delivery')
             .then((response) => {
-                console.log("------------------------------------------------------------", response.data);
+                // console.log("------------------------------------------------------------", response.data.menucategies);
                 setData(response.data)
 
             })

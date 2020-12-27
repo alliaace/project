@@ -12,7 +12,7 @@ function Profile({ route }) {
     const { data } = route.params;
     const [pendingReservation, setPendingReservations] = useState(0)
     const [confirmReservation, setConfirmReservations] = useState(0)
-    const [pastReservation, setPastReservations] = useState([])
+    const [pastReservation, setPastReservations] = useState(0)
 
     const [control, setControl] = useState(true);
 
@@ -43,7 +43,15 @@ function Profile({ route }) {
         jsonserver.get('/resturant/Reservetion/Completed/' + data._id)
             .then((response) => {
                 // console.log(response);
-                setPastReservations(response.data)
+                var arr = response.data
+                // console.log(arr);
+                var total = 0
+
+                arr.map((a) => {
+                    total = total + a.totalBill
+                })
+                setPastReservations(total)
+                // setPastReservations(response.data)
             })
             .then((error) => {
                 console.log("errors are ", error);
@@ -71,10 +79,10 @@ function Profile({ route }) {
             .then((response) => {
                 var arr = response.data
                 // console.log(arr);
-                var total=0
+                var total = 0
 
                 arr.map((a) => {
-                    total=total+a.totalBill
+                    total = total + a.totalBill
                 })
                 setIncomeDeliveries(total)
 
@@ -98,15 +106,21 @@ function Profile({ route }) {
 
             <Text style={{ fontSize: 36, color: "white", alignSelf: "flex-start", marginLeft: "10%" }}>Reservations</Text>
             <View style={{ width: "80%", height: 100, backgroundColor: "white", marginVertical: 15, alignItems: "center" }}>
-                <Text style={{ fontSize: 26, marginBottom: 15 }}>Pending Reservations</Text>
+                <Text style={{ fontSize: 26, marginBottom: 15 }}>Pending</Text>
                 <Divider style={{ backgroundColor: "black", width: "80%" }} />
                 <Text style={{ fontSize: 40 }}>{pendingReservation}</Text>
             </View>
 
             <View style={{ width: "80%", height: 100, backgroundColor: "white", marginVertical: 15, alignItems: "center" }}>
-                <Text style={{ fontSize: 26, marginBottom: 15 }}>Confirm Reservations</Text>
+                <Text style={{ fontSize: 26, marginBottom: 15 }}>Confirm</Text>
                 <Divider style={{ backgroundColor: "black", width: "80%" }} />
                 <Text style={{ fontSize: 40 }}>{confirmReservation}</Text>
+            </View>
+
+            <View style={{ width: "80%", height: 100, backgroundColor: "white", marginVertical: 15, alignItems: "center" }}>
+                <Text style={{ fontSize: 26, marginBottom: 15 }}>Income</Text>
+                <Divider style={{ backgroundColor: "black", width: "80%" }} />
+                <Text style={{ fontSize: 40 }}>{pastReservation}</Text>
             </View>
 
 
