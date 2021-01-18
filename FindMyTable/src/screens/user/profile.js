@@ -6,13 +6,13 @@ import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import jsonserver from '../../server/jsonServer'
 import sty from '../../styles/style'
-
-
-
+import Modal from 'react-native-modal'
+import ImagePicker from 'react-native-image-picker';
+import firebase from 'firebase'
+import { ToastAndroid } from 'react-native';
+import pic from '../../hooks/pic'
 function Profile({ route, navigation }) {
     const { data } = route.params;
-    // const [data, setData] = React.useState(data1)
-
     const [showReservation, setshowReservation] = React.useState(false)
     const [showUpdateProfile, setshowUpdateProfile] = React.useState(false)
     const [showDeliveries, setShowDeliveries] = React.useState(false)
@@ -33,28 +33,41 @@ function Profile({ route, navigation }) {
     const [showPastDeliveries, setShowPastDeliveries] = React.useState(false)
     const [review, setReview] = React.useState("")
     const [showReview, setShowReview] = React.useState(false)
-
+    const [picModal, setPicModal] = React.useState(false)
     const [temp, setTemp] = React.useState(data)
+    const [selectedPictureUri, setSelectedPictureUri] = React.useState(data.uri)
+    const { imageName, uploadUri } = React.useState("pic");
 
 
-    const callReservationpending = () => {
+    const options = {
+        title: 'Select Profile Picture',
+        maxWidth: 200,
+        maxHeight: 200,
+        quality: 1,
+        includeBase64: true,
+        storageOptions: {
+            skipBackup: true,
+            path: '../Android/data/com.findmytable/files',
+            includeBase64: true
+        },
 
-
-
-    }
+    };
 
     const changeUpdateProfile = () => {
-
         setshowUpdateProfile(!showUpdateProfile)
-
     }
+    const obj = new pic()
 
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={{ alignItems: 'center', alignContent: "center" }}>
             <ScrollView style={styles.innercont}>
                 <View style={styles.logoplusinfo}>
-                    <Image source={require("../../media/logo.png")} style={{ width: 100, height: 100 }} />
+
+                    <Pressable onPress={() => setPicModal(!picModal)}>
+                        <Ionicons name="create" size={20} color="white" style={{ position: "absolute", zIndex: 50, marginLeft: 80 }} />
+                        <Image source={{ uri: "data:image/png;base64," + selectedPictureUri }} style={{ width: 100, height: 100 }} />
+                    </Pressable>
                     <View style={{ marginLeft: 25 }}>
                         <Text style={{ fontSize: 36, color: "white" }}>{temp.name}</Text>
                         <Text style={{ fontSize: 20, color: "#e1e1e1" }}>{temp.email}</Text>
@@ -62,6 +75,33 @@ function Profile({ route, navigation }) {
                     </View>
 
                 </View>
+                <Modal isVisible={picModal} onBackdropPress={() => setPicModal(!picModal)} animationIn="bounceInUp">
+                    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                        <View style={{ width: "80%", backgroundColor: "white", height: "40%", alignItems: "center", justifyContent: "center" }}>
+                            <Image source={{ uri: "data:image/png;base64," + selectedPictureUri }} style={{ width: 200, height: 200, marginBottom: 20 }} />
+                            <View style={{ flexDirection: "row" }} >
+                                <Button title="choose Photo" onPress={() => {
+                                    ImagePicker.showImagePicker(options, (response) => {
+                                        // console.log('Response = ', response);
+
+                                        if (response.didCancel) {
+                                            console.log('User cancelled image picker');
+                                        } else if (response.error) {
+                                            console.log('ImagePicker Error: ', response.error);
+                                        } else {
+                                            const uri = response.uri;
+                                            setSelectedPictureUri(response.data)
+                                        }
+                                    });
+                                }} />
+                                <Button title="save" style={{ marginLeft: 50 }} onPress={() => {
+                                    ToastAndroid.show("Saved", ToastAndroid.SHORT);
+                                }} />
+                            </View>
+                        </View>
+
+                    </View>
+                </Modal>
 
 
                 <Card.Divider />
@@ -194,7 +234,7 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Patment Before Reservation: {a.paymentBeforeReservation}
                                                     </Text>
-                                                    
+
                                                     <View>
                                                         {
                                                             a.order.map((b) => {
@@ -494,7 +534,7 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Phone Number: {a.user.userPhone}
                                                     </Text>
-                                                    
+
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
                                                     </Text>
@@ -594,7 +634,7 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Phone Number: {a.user.userPhone}
                                                     </Text>
-                                                    
+
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
                                                     </Text>
@@ -678,7 +718,7 @@ function Profile({ route, navigation }) {
                                                     <Text>
                                                         Phone Number: {a.user.userPhone}
                                                     </Text>
-                                                    
+
                                                     <Text>
                                                         Date of Reservation: {a.dateOfReservation}
                                                     </Text>
@@ -722,7 +762,7 @@ function Profile({ route, navigation }) {
                                                             "secure-text"
                                                         );
 
-                            
+
 
                                                     }} ><Text style={sty.textbtnprop} >Review</Text></Pressable>
 

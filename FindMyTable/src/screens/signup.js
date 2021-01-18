@@ -1,21 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { View, Text, Button, Pressable, StatusBar, TextInput, StyleSheet, Image } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ScrollView } from 'react-native-gesture-handler';
 import DashboardScreen from './user/dashboardUser'
-
+import ImagePicker from 'react-native-image-picker';
 import ProcessSignup from '../routes/DashBoardGetter'
 import jsonserver from '../server/jsonServer'
 import styles from '../styles/style'
 import { Input } from 'react-native-elements';
-
-
+import pic from '../hooks/pic'
 const Stack = createStackNavigator();
-
 const SignupRender = ({ navigation }) => {
-
-
     const [name, setName] = useState("")
     const [email, setEmail] = useState("")
     const [phone, setPhone] = useState("")
@@ -23,6 +19,36 @@ const SignupRender = ({ navigation }) => {
     const [confirmPass, setConfirmPass] = useState("")
     const [errorUp, setErrorUp] = useState("")
     const [btnValue, setBtnValue] = useState("SIGNUP")
+    const [selectedPictureUri, setSelectedPictureUri] = useState("")
+    const obj = new pic()
+    const options = {
+        title: 'Select Profile Picture',
+        maxWidth: 200,
+        maxHeight: 200,
+        quality: 1,
+        includeBase64: true,
+        storageOptions: {
+            skipBackup: true,
+            path: '../Android/data/com.findmytable/files',
+            includeBase64: true
+        },
+
+    };
+    const HandlePicture = () => {
+        ImagePicker.showImagePicker(options, (response) => {
+            console.log('Response = ', response.data);
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else {
+                const uri = response.uri;
+                setSelectedPictureUri(response.data)
+                // console.log("this is uri ------------------->>>", uri);
+            }
+        })
+    }
 
     const processSignUp = () => {
 
@@ -45,27 +71,28 @@ const SignupRender = ({ navigation }) => {
                     name: name,
                     phone: phone,
                     email: email,
-                    password: pass
+                    password: pass,
+                    uri: selectedPictureUri
                 })
                     .then((response) => {
-                        console.log(response);
+                        console.log(response.data);
                         navigation.navigate('LoginUser'
-                            )
+                        )
                     })
                     .catch(function (error) {
                         console.log(error);
-                        if(error.message=="Request failed with status code 400"){
+                        if (error.message == "Request failed with status code 400") {
                             setErrorUp("Something is incorrect check again")
                         }
-                        else if(error.message=="Network Error"){
+                        else if (error.message == "Network Error") {
                             setErrorUp("Internet Connection lost")
                         }
-                        else{
+                        else {
                             setErrorUp("Something went wrong try again later")
                         }
                         setBtnValue("SIGNUP")
                     })
-            }else{
+            } else {
                 setErrorUp("Password did'nt match")
             }
 
@@ -98,6 +125,11 @@ const SignupRender = ({ navigation }) => {
                     <Input keyboardType="numeric" leftIcon={{ type: 'font-awesome', name: 'phone' }} placeholder="Enter Your Phone" containerStyle={styles.input} placeholderTextColor="black" onChangeText={(ph) => setPhone(ph)} />
                     <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Enter Your Password" containerStyle={styles.input} secureTextEntry placeholderTextColor="black" onChangeText={(ps) => setPass(ps)} />
                     <Input leftIcon={{ type: 'font-awesome', name: 'lock' }} placeholder="Confirm Password" containerStyle={styles.input} secureTextEntry placeholderTextColor="black" onChangeText={(cps) => setConfirmPass(cps)} />
+                    <Button title="choose Photo" onPress={() => {
+                        // HandlePicture()
+                        setSelectedPictureUri(obj.HandlePicture())
+                    }} />
+                    {/* <Image style={{ width: 50, height: 50 }} source={{ uri: "data:image/png;base64," + selectedPictureUri }} /> */}
                     <Pressable style={styles.btn} onPress={processSignUp}><Text style={styles.textbtnprop}>{btnValue}</Text></Pressable>
                     <Pressable style={styles.txt} onPress={() => navigation.navigate("LoginUser")}><Text style={styles.navigatortext}>Already have an account? SignIn</Text></Pressable>
 
